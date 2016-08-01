@@ -1,7 +1,7 @@
 from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
-import server_config
-from server_query_api import QueryView
+import server_dummy_config as server_config
+from server_query_dummy_api import QueryView
 
 
 
@@ -23,6 +23,7 @@ class DonkeyView(FlaskView):
 			uuid = uuid,
 			prefix=server_config.web_prefix
 		)
+
 
 	def edit_free(self, name):
 		'''this loads the query editing ui.
