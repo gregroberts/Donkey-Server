@@ -16,7 +16,16 @@ class DonkeyView(FlaskView):
 		return render_template('%s_docs.html' % route,
 			prefix = server_config.web_prefix)
 
-	def edit(self, name):
+
+	def edit_table_query(self, uuid):
+		if uuid == 'new':
+			return render_template(
+				'table_query_editor.html',
+				uuid = 'NEW_QUERY',
+				prefix=server_config.web_prefix
+			)
+
+	def edit_free(self, name):
 		'''this loads the query editing ui.
 		'''
 		gg = filter(lambda x: '_grabber' in x, grabber.grabbers.__dict__.keys())

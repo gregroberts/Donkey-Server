@@ -4,12 +4,11 @@ from server_query import ServerQuery
 from json import dumps
 
 class QueryView(FlaskView):
+	@route('/new/', methods=['POST'])
 	def new(self):
 		details = request.json or {}
-		print details
 		q = ServerQuery(**details)
 		uuid = str(q.uuid)
-		print q.handler
 		res =  {
 			'uuid':uuid,
 			'message':'New Query Successfully Created'
@@ -101,7 +100,6 @@ class QueryView(FlaskView):
 
 	def fetch(self, uuid):
 		query = request.json or {}
-		print query
 		q = ServerQuery(uuid = uuid)
 		q.fetch(**query)
 		res = {
@@ -124,7 +122,6 @@ class QueryView(FlaskView):
 			'data':q.data,
 			'uuid':uuid
 		}
-		print q.handler
 		return Response(
 			response =dumps(res),
 			status = 200,
