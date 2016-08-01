@@ -27,8 +27,14 @@ class ServerQuery(Query):
 			host = server_config.REDIS_HOST,
 			port = server_config.REDIS_PORT
 		)
+
 		#initiate normal query
-		Query.__init__(self, grabber, handler, freshness)
+		Query.__init__(
+			self,
+			grabber = grabber,
+			handler = handler,
+			freshness = freshness
+		)
 		if uuid is None:
 			#new query, write state to redis
 			self.uuid = str(uuid1())
@@ -39,13 +45,14 @@ class ServerQuery(Query):
 			self.read_details()
 
 	def read_details(self):
-		keys = ['raw_data','data','handle_query','request_query']
+		keys = ['raw_data','data','handle_query','request_query','handler','grabber']
 		query = self.redis_conn.hmget('queries:%s' % self.uuid, keys)
 		self.raw_data = query[0]
 		self.data = eval(query[1])
 		self.handle_query = eval(query[2])
 		self.request_query = eval(query[3])
-
+		self.handler = query[4]
+		self.grabber = query[5]
 
 
 	def write_details(self):
@@ -53,7 +60,9 @@ class ServerQuery(Query):
 			'raw_data':self.raw_data,
 			'data':self.data,
 			'handle_query':self.handle_query,
-			'request_query':self.request_query
+			'request_query':self.request_query,
+			'handler':self.handler,
+			'grabber':self.grabber
 		}
 		self.redis_conn.hmset('queries:%s' % self.uuid, vals)
 

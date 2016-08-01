@@ -6,8 +6,10 @@ from json import dumps
 class QueryView(FlaskView):
 	def new(self):
 		details = request.json or {}
+		print details
 		q = ServerQuery(**details)
 		uuid = str(q.uuid)
+		print q.handler
 		res =  {
 			'uuid':uuid,
 			'message':'New Query Successfully Created'
@@ -122,6 +124,7 @@ class QueryView(FlaskView):
 			'data':q.data,
 			'uuid':uuid
 		}
+		print q.handler
 		return Response(
 			response =dumps(res),
 			status = 200,
