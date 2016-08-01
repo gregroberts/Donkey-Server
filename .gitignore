@@ -50,3 +50,5 @@ Temporary Items
 server_config.py
 
 cache.db
+
+*.pyc
