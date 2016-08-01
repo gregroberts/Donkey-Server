@@ -46,29 +46,30 @@ function hydrate_query(uuid){
 			data,
 			handle_query,
 			request_query;
-		hit_api('/query/raw_data/' + uuid , null , 'GET').done(function(data){
-			raw_data = data.raw_data;
-			console.log('raw_data'+raw_data)
+		raw_data = hit_api('/query/raw_data/' + uuid , null , 'GET').done(function(data){
+			console.log(data.data)
+			return data.data.raw_data;
 		});
-		hit_api('/query/data/' + uuid , null , 'GET').done(function(data){
-			data = data.data;
-			console.log('data'+data)
+		data = hit_api('/query/data/' + uuid , null , 'GET').done(function(data){
+			console.log(data.data)
+			return data.data;
 		});
-		hit_api('/query/handle_query/' + uuid , null, 'GET').done(function(data){
-			handle_query = data.handle_query;
-			console.log('handle_query'+handle_query)
+		handle_query = hit_api('/query/handle_query/' + uuid , null, 'GET').done(function(data){
+			console.log(data.data)
+			return data.data.handle_query;
 		});
-		hit_api('/query/request_query/' + uuid ,  null, 'GET').done(function(data){
-			request_query = data.request_query;
-			console.log('request_query'+request_query)
+		request_query = hit_api('/query/request_query/' + uuid ,  null, 'GET').done(function(data){
+			console.log(data.data)
+			return data.data.request_query;
 		});
-		return {
+		var x = {
 			raw_data: raw_data,
 			data: data,
 			handle_query: handle_query,
 			request_query: request_query,
 			uuid: uuid
 		}	
+		return x;
 }
 
 var QueryBox = React.createClass({
@@ -81,7 +82,7 @@ var QueryBox = React.createClass({
 		console.log(uuid);
 		if (uuid == "new") {
 			hit_api('/query/new/', {handler: "XPATHROW"}, 'POST').done( function(data){
-				uuid = data.uuid
+				uuid = data.uuid;
 			});
 			var data = hydrate_query(uuid);
 			console.log(data);
