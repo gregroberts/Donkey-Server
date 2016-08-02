@@ -20,7 +20,7 @@ donkey.query.grabber.cache_check = cache_check
 
 
 class ServerQuery(Query):
-
+	
 	def __init__(self, grabber = None, handler =None, freshness = None, uuid = None):
 		#for handling state
 		self.redis_conn = Redis(
