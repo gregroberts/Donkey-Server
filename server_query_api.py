@@ -3,6 +3,8 @@ from flask.ext.classy import FlaskView, route
 from server_query import ServerQuery
 from json import dumps
 
+
+
 class QueryView(FlaskView):
 	@route('/new/', methods=['POST'])
 	def new(self):
@@ -32,6 +34,7 @@ class QueryView(FlaskView):
 				mimetype = 'application/json'
 			)
 
+	@route('/save/', methods=['POST'])
 	def save(self, uuid):
 		details = request.json
 		q = ServerQuery(uuid = uuid)
@@ -74,6 +77,7 @@ class QueryView(FlaskView):
 
 	def handle_query(self, uuid):
 		q = ServerQuery(uuid = uuid)
+		print q.handle_query
 		res = {
 			'message': 'handle_query',
 			'data':q.handle_query,
@@ -98,8 +102,10 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
+	@route('/fetch/<uuid>', methods=['POST'])
 	def fetch(self, uuid):
 		query = request.json or {}
+		print query
 		q = ServerQuery(uuid = uuid)
 		q.fetch(**query)
 		res = {
@@ -113,6 +119,7 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
+	@route('/handle/<uuid>', methods=['POST'])
 	def handle(self, uuid):
 		query = request.json or {}
 		q = ServerQuery(uuid = uuid)
@@ -128,6 +135,7 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
+	@route('/run/<uuid>', methods=['POST'])
 	def run(self, uuid):
 		query = request.json or {}
 		q = ServerQuery(uuid = uuid)

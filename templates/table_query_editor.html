@@ -23,22 +23,26 @@
 
 
 
-{{uuid}}
-
-
-
 <script   type="text/babel">
-
-
-
 function hit_api(route, data, method){
-	return $.ajax({
-		type:method,
-		contentType:'application/json',
-		url:"{{prefix}}" + route,
-		data:JSON.stringify(data),
-		async:true,
-	});
+	if (data==null) {
+		return $.ajax({
+			type:method,
+			contentType:'application/json',
+			url:"{{prefix}}" + route,
+			async:true,
+		});		
+	}
+	else {
+		return $.ajax({
+			type:method,
+			contentType:'application/json',
+			url:"{{prefix}}" + route,
+			data:JSON.stringify(data),
+			async:true,
+		});	
+	};
+
 };
 
 function hydrate_query(uuid){
@@ -46,75 +50,235 @@ function hydrate_query(uuid){
 			data,
 			handle_query,
 			request_query;
-		raw_data = hit_api('/query/raw_data/' + uuid , null , 'GET').done(function(data){
-			console.log(data.data)
-			return data.data.raw_data;
-		});
-		data = hit_api('/query/data/' + uuid , null , 'GET').done(function(data){
-			console.log(data.data)
-			return data.data;
-		});
-		handle_query = hit_api('/query/handle_query/' + uuid , null, 'GET').done(function(data){
-			console.log(data.data)
-			return data.data.handle_query;
-		});
-		request_query = hit_api('/query/request_query/' + uuid ,  null, 'GET').done(function(data){
-			console.log(data.data)
-			return data.data.request_query;
-		});
-		var x = {
-			raw_data: raw_data,
-			data: data,
-			handle_query: handle_query,
-			request_query: request_query,
-			uuid: uuid
-		}	
+		raw_data = hit_api('/query/raw_data/' + uuid , null , 'GET');
+		data = hit_api('/query/data/' + uuid , null, 'GET');
+		handle_query = hit_api('/query/handle_query/' + uuid , null, 'GET');
+		request_query = hit_api('/query/request_query/' + uuid ,  null, 'GET');
+		var x = $.when(raw_data, data, handle_query, request_query).then(function(raw_data, data, handle_query, request_query){
+			var k = {
+				raw_data: raw_data[0].data,
+				data: data[0].data,
+				handle_query: handle_query[0].data,
+				request_query: request_query[0].data,
+				uuid: uuid
+			};
+			return k
+		})
 		return x;
 }
 
 var QueryBox = React.createClass({
-
 	getInitialState: function() {
-	    return {data: []};
+	    return {
+		raw_data: "",
+		data: {},
+		handle_query: {},
+		request_query: {},
+		uuid: "{{uuid}}"	    	
+	    };
 	 },
 	componentDidMount: function(){
-		var uuid = "{{uuid}}";
-		console.log(uuid);
+		var   uuid = "{{uuid}}",
+			get_data = {},
+			data = {};
 		if (uuid == "new") {
-			hit_api('/query/new/', {handler: "XPATHROW"}, 'POST').done( function(data){
+			var get_uid = hit_api('/query/new/', {handler: "XPATHROW"}, 'POST');
+			var get_details = $.when(get_uid).then(function(data){
 				uuid = data.uuid;
+				return hydrate_query(uuid);
 			});
-			var data = hydrate_query(uuid);
-			console.log(data);
-			this.setState({data: data});
+			var complete = $.when(get_details).then(function(ret_val){
+				return ret_val;
+			});
+			$.when(complete).then(function(ret){
+				this.setState(ret);
+			}.bind(this));
 		};
+	},
+	updateRequestQuery: function(data){
+		this.setState({
+			request_query:data
+		});
+		var data = $.when(hit_api('/query/fetch/'+this.state.uuid, data, 'POST')).then(function(data){
+			this.setState({raw_data: data.data})
+		}.bind(this));
+		;
+	},
+	addNewCell: function(data){
+		var vals = this.state.handle_query
+		vals[data] = '';
+		this.setState({handle_query: vals});
+	},
+	updateHandleQueryVal: function(key, val){
+		var to_up = this.state.handle_query;
+		to_up[key] = val;
+		this.setState({handle_query: to_up});
+	},
+	submitHandleQuery: function(){
+		var data = $.when(hit_api('/query/handle/'+this.state.uuid, this.state.handle_query, 'POST')).then(function(data){
+			this.setState({data: data.data})
+		}.bind(this));	
 	},
 	render: function(){
 		return (
 			<div className="queryBox">
-				{this.uuid}
-				{this.raw_data}
+				<RequestQueryBox
+					data={this.state.request_query}
+					onURLSubmit = {this.updateRequestQuery}
+				/>
+				Raw Request Data: <textarea value={this.state.raw_data}/>
+				<br/>
+				Handle Query 
+				<HandleQueryTable 
+					values={this.state.handle_query}
+					addNewCell={this.addNewCell}
+					updateVal={this.updateHandleQueryVal}
+					performHandleQuery={this.submitHandleQuery}
+					outputData={this.state.data}/>
+			</div>
+		)
+	},
+});
+
+var RequestQueryBox = React.createClass({
+	getInitialState: function(){
+		return {url: ''};
+	},
+	handleSubmit: function(e){
+		this.setState({url: this.refs.url.value});
+		this.props.onURLSubmit({url: this.refs.url.value});
+	},
+	render: function(){
+		return(
+			<div className="requestQueryBox" >
+				Enter URL: <input type="text" ref="url"/>
+				<button onClick={this.handleSubmit}>Update Details</button>
+			</div>
+		)
+	},
+
+});
+
+
+var HandleQueryTable = React.createClass({
+	getInitialState: function(){
+		return {cells:{}};
+	},
+	makeNewCell: function(){
+		var newVal = prompt("Enter a name for the new value", "NewVal")
+		var curr_keys = this.state.cells;
+		curr_keys[newVal]="";
+		this.setState({cells: curr_keys});
+		this.props.addNewCell(newVal)
+	},
+	updateVal: function(key, val){
+		var curr_keys = this.state.cells;
+		curr_keys[key]= val;
+		this.setState({cells: curr_keys});		
+		this.props.updateVal(key, val)
+	},
+	render: function(){
+		var keys = Object.keys(this.props.values);
+		var values = this.props.values;
+		var out_keys = Object.keys(this.props.outputData);
+		var out_values = this.props.outputData;
+		return(
+			<div>
+				<table is border="1">
+					<thead>
+						<tr>
+							{
+								keys.map(function(key, index){
+									return <th key={index}>{key}</th>
+								})
+							}
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							{
+								keys.map(function(key, index){
+									var val = values[key];
+									var ind = index;
+									console.log(index);
+									return <InputTableCell 
+											value={val} 
+											key={ind}
+											keyname = {key}
+											updateVal={this.updateVal}
+										/>
+								}.bind(this))
+							}
+						</tr>
+					</tbody>
+				</table>
+				<button onClick={this.makeNewCell}> Add New value</button>
+				<button onClick={this.props.performHandleQuery}>Perform Handle Query</button>
+				
+				<table is border="1">
+					<thead>
+						<tr>
+							{
+								out_keys.map(function(key, index){
+									return <th key={index}>{key}</th>
+								})
+							}
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							{
+								out_keys.map(function(key, index){
+									var val = out_values[key];
+									var ind = index;
+									console.log(index);
+									return <OutputTableCell 
+											value={val} 
+											key={ind}
+										/>
+								}.bind(this))
+							}
+						</tr>
+					</tbody>	
+				</table>				
 			</div>
 		);
 	}
+
+})
+
+var InputTableCell = React.createClass({
+	getInitialState: function(){
+		return {}
+	},
+	changeVal: function(e){
+		var val = e.target.value;
+		var key = this.props.keyname;
+		this.props.updateVal(key, val);
+	},
+	render: function(){
+		return (
+			<td><input type="text" onChange={this.changeVal}/></td>
+		)
+	}
 });
+
+var OutputTableCell = React.createClass({
+	getInitialState: function(){
+		return {}
+	},
+	render: function(){
+		return (
+			<td>{this.props.value}</td>
+		)
+	}	
+})
+
+
 ReactDOM.render(
 	<QueryBox />,
 	document.getElementById('query')
 )
-
-
-
-
-
-/*if (uuid == 'NEW_QUERY') {
-	q_data = hit_api('/query/new/',{handler:"XPATHROW"}, 'POST');
-	console.log(q_data);
-	uuid = q_data.uuid;
-	query = hydrate_query(uuid);
-	console.log(query)
-
-};*/
 </script>
 </body>
 </html>

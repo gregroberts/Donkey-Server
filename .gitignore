@@ -51,5 +51,6 @@ server_config.py
 
 cache.db
 
+
 *.pyc
 *.pyc
