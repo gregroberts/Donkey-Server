@@ -32,7 +32,7 @@ var Table = ReactBootstrap.Table;
 
 function hit_api(route, data, method){
 	function mkLoad(){
-			$('#loader').html('LOADING');
+			$('#loader').html('<img src={{prefix}}/static/img/SPINNAZ.gif />');
 	};
 	function unLoad(){
 		$('#loader').html('');
@@ -272,7 +272,7 @@ var HandleQueryTable = React.createClass({
 				var curr_keys = this.state.cells;
 				curr_keys[newVal]="";
 				this.setState({cells: curr_keys});
-				this.props.addNewCell(newVal)			
+				this.props.addNewCell(newVal)
 		}
 	},
 	updateVal: function(key, val){
@@ -288,21 +288,18 @@ var HandleQueryTable = React.createClass({
 		var out_values = this.props.outputData;
 		return(
 			<Row>
-			<Panel header="Query Details">
+			<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
+						 Collapse Query Details
+			</Button>
+			<Panel header="Query Details"  collapsible expanded={this.state.open}>
 				<Col md={6} >
 				<Panel header="Query Input">
 					<Table striped bordered condensed hover>
 						<thead>
 							<tr>
-								<th>
-									Variable Name
-								</th>
-								<th>
-									Xpath Query
-								</th>
-								<th>
-									Del
-								</th>
+								<th>Variable Name</th>
+								<th>Xpath Query</th>
+								<th>Del</th>
 							</tr>
 						</thead>
 						<tbody>

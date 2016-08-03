@@ -20,8 +20,11 @@ donkey.query.grabber.cache_check = cache_check
 
 
 class ServerQuery(Query):
-	
-	def __init__(self, grabber = None, handler =None, freshness = None, uuid = None):
+	parameters = []
+	name = ''
+	description  =''
+	def __init__(self, grabber = None, handler =None, freshness = None,
+				uuid = None, name = '', description = ''):
 		#for handling state
 		self.redis_conn = Redis(
 			host = server_config.REDIS_HOST,
@@ -45,7 +48,9 @@ class ServerQuery(Query):
 			self.read_details()
 
 	def read_details(self):
-		keys = ['raw_data','data','handle_query','request_query','handler','grabber']
+		keys = ['raw_data','data','handle_query','request_query',
+				'handler','grabber','name','description',
+				'parameters']
 		query = self.redis_conn.hmget('queries:%s' % self.uuid, keys)
 		self.raw_data = query[0]
 		self.data = eval(query[1])
@@ -53,6 +58,9 @@ class ServerQuery(Query):
 		self.request_query = eval(query[3])
 		self.handler = query[4]
 		self.grabber = query[5]
+		self.name = query[6]
+		self.description = query[7]
+		self.parameters = query[8]
 
 
 	def write_details(self):
@@ -62,11 +70,14 @@ class ServerQuery(Query):
 			'handle_query':self.handle_query,
 			'request_query':self.request_query,
 			'handler':self.handler,
-			'grabber':self.grabber
+			'grabber':self.grabber,
+			'name':self.name,
+			'description':self.description,
+			'parameters':self.parameters
 		}
 		self.redis_conn.hmset('queries:%s' % self.uuid, vals)
 
-	
+
 
 	#replace handle, fetch and run with ones which interact with redis and wrap the originals
 	def fetch(self,update = True,  **qry):
@@ -102,23 +113,31 @@ class ServerQuery(Query):
 			'description':description,
 			'saved_at':datetime.now().strftime('%Y-%m-%d %H:%M'),
 			'query':req_q,
-			'uuid':self.uuid
+			'uuid':self.uuid,
+			'parameters':self.parameters
 		}
 		self.redis_conn.hmset('library:%s' % self.uuid, val)
 
 	def load(self, uuid):
 		self.uuid = uuid
-		val = self.redis_conn.hmget('library:%s' % uuid, ['query'])
-		if val[0] == None:
+		to_get = ['query','name','description','parameters']
+		value = self.redis_conn.hmget('library:%s' % uuid, to_get)
+		if value[0] == None:
 			raise Exception('Could not find query')
 		else:
-			val = eval(val[0])
+			val = eval(value[0])
 			self.freshness = val['request'].pop('@freshness')
 			self.grabber = val['request'].pop('@grabber')
 			self.handler = val['handle'].pop('@handler')
 			self.request_query = val['request']
 			self.handle_query = val['handle']
+			self.name = value[1]
+			self.description = value[2]
+			self.parameters = eval(value[3])
 
+	def set_params(self, **params):
+		Query.set_params(self, **params)
+		self.write_details()
 
 
 

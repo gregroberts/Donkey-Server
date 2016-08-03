@@ -59,7 +59,6 @@ if __name__ == '__main__':
 	application = Flask(__name__)
 
 	QueryView.register(application)
-
 	DonkeyView.register(application)
 	@application.errorhandler(500)
 	def internal_error(e):
@@ -69,4 +68,4 @@ if __name__ == '__main__':
 			status = 500,
 			mimetype = 'application/json'
 		)	
-	application.run('0.0.0.0', debug = False)
+	application.run('0.0.0.0', debug = True)

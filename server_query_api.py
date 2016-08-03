@@ -27,6 +27,15 @@ class QueryView(FlaskView):
 		res = {
 			'message':'Successfully loaded Query',
 			'uuid':uuid,
+			'data':{
+				'handler':q.handler,
+				'grabber':q.grabber,
+				'request_query':q.request_query,
+				'handle_query':q.handle_query,
+				'name':q.name,
+				'description':q.description,
+				'parameters':q.parameters
+			}
 		}
 		return Response(
 				response = dumps(res),
@@ -34,7 +43,7 @@ class QueryView(FlaskView):
 				mimetype = 'application/json'
 			)
 
-	@route('/save/', methods=['POST'])
+	@route('/save/<uuid>', methods=['POST'])
 	def save(self, uuid):
 		details = request.json
 		q = ServerQuery(uuid = uuid)
@@ -47,7 +56,7 @@ class QueryView(FlaskView):
 				response = dumps(res),
 				status = 200,
 				mimetype = 'application/json'
-			)	
+			)
 
 	def raw_data(self, uuid):
 		q = ServerQuery(uuid = uuid)
@@ -102,7 +111,36 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
-	
+	def get_parameters(self, uuid):
+		q = ServerQuery(uuid = uuid)
+		params = q.get_params()
+		res = {
+			'message': 'parameters',
+			'data':params,
+			'uuid':uuid
+		}
+		return Response(
+			response =dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)
+
+	@route('/set_parameters/<uuid>', methods=['POST'])
+	def set_parameters(self, uuid):
+			details = request.json or {}
+			q = ServerQuery(uuid = uuid)
+			params = q.set_params(**details)
+			res = {
+				'message':'parameters successfully set',
+				'data':params,
+				'uuid':uuid
+			}
+			return Response(
+				response =dumps(res),
+				status = 200,
+				mimetype = 'application/json'
+			)
+
 	@route('/fetch/<uuid>', methods=['POST'])
 	def fetch(self, uuid):
 		query = request.json or {}
@@ -158,7 +196,7 @@ class QueryView(FlaskView):
 if __name__ == '__main__':
 	application = Flask(__name__)
 
-	QueryView.register(application)	
+	QueryView.register(application)
 	@application.errorhandler(500)
 	def internal_error(e):
 		print e
@@ -166,5 +204,5 @@ if __name__ == '__main__':
 			response =dumps({'error':str(e)}),
 			status = 500,
 			mimetype = 'application/json'
-		)	
+		)
 	application.run(host='0.0.0.0', debug=False)
