@@ -6,32 +6,50 @@
 	<script src="{{prefix}}/static/js/react-15.3.0/react-dom.js"></script>
 	<script src="{{prefix}}/static/js/browser.min.js"></script>
 	<script src="{{prefix}}/static/jquery-2.1.4.min.js"></script>
-	<script src="{{prefix}}/static/bootstrap-3.3.5/js/bootstrap.min.js"></script>
-	
+	<script src="{{prefix}}/static/js/react-bootstrap.js"></script>
 	<link href="{{prefix}}/static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
-	
+
 </head>
 <body>
-
-<div class="container">
-	<div class="row">
-		<h1>Let's construct a Donkey Query!</h1>
-	</div>
-	
-	<div class="row" id="query"></div>
-</div>
+<div id="loader"></div>
+<div id="query"></div>
 
 
 
 <script   type="text/babel">
+
+var Button = ReactBootstrap.Button;
+var InputGroup = ReactBootstrap.InputGroup;
+var FormControl = ReactBootstrap.FormControl;
+var ControlLabel = ReactBootstrap.ControlLabel;
+var FormGroup = ReactBootstrap.FormGroup;
+var Grid = ReactBootstrap.Grid;
+var Col = ReactBootstrap.Col;
+var PageHeader = ReactBootstrap.PageHeader;
+var Row = ReactBootstrap.Row;
+var Panel = ReactBootstrap.Panel;
+var Table = ReactBootstrap.Table;
+
 function hit_api(route, data, method){
+	function mkLoad(){
+			$('#loader').html('LOADING');
+	};
+	function unLoad(){
+		$('#loader').html('');
+	};
+	function fail(jqX, status, error){
+		console.log(jqX);
+		alert('API Call to route \''+route+'\' failed with error:\n\n"'+jqX.responseJSON.error+'"');
+	}
 	if (data==null) {
 		return $.ajax({
 			type:method,
 			contentType:'application/json',
 			url:"{{prefix}}" + route,
 			async:true,
-		});		
+			beforeSend:mkLoad,
+			error:fail,
+		}).always(unLoad);
 	}
 	else {
 		return $.ajax({
@@ -40,7 +58,9 @@ function hit_api(route, data, method){
 			url:"{{prefix}}" + route,
 			data:JSON.stringify(data),
 			async:true,
-		});	
+			beforeSend:mkLoad,
+			error:fail,
+		}).always(unLoad);
 	};
 
 };
@@ -74,7 +94,7 @@ var QueryBox = React.createClass({
 		data: {},
 		handle_query: {},
 		request_query: {},
-		uuid: "{{uuid}}"	    	
+		uuid: "{{uuid}}"
 	    };
 	 },
 	componentDidMount: function(){
@@ -101,8 +121,10 @@ var QueryBox = React.createClass({
 		});
 		var data = $.when(hit_api('/query/fetch/'+this.state.uuid, data, 'POST')).then(function(data){
 			this.setState({raw_data: data.data})
+			return data.data;
 		}.bind(this));
 		;
+		return data;
 	},
 	addNewCell: function(data){
 		var vals = this.state.handle_query
@@ -117,43 +139,120 @@ var QueryBox = React.createClass({
 	submitHandleQuery: function(){
 		var data = $.when(hit_api('/query/handle/'+this.state.uuid, this.state.handle_query, 'POST')).then(function(data){
 			this.setState({data: data.data})
-		}.bind(this));	
+		}.bind(this));
+	},
+	delVal: function(val){
+		var v = this.state.handle_query;
+		delete v[val.key];
+		this.setState({handle_query: v});
 	},
 	render: function(){
 		return (
-			<div className="queryBox">
+			<Grid className="queryBox">
+			<PageHeader>XPathRow Query Constructor</PageHeader>
 				<RequestQueryBox
 					data={this.state.request_query}
 					onURLSubmit = {this.updateRequestQuery}
 				/>
-				Raw Request Data: <textarea value={this.state.raw_data}/>
-				<br/>
-				Handle Query 
-				<HandleQueryTable 
+
+				<HandleQueryTable
 					values={this.state.handle_query}
 					addNewCell={this.addNewCell}
 					updateVal={this.updateHandleQueryVal}
 					performHandleQuery={this.submitHandleQuery}
-					outputData={this.state.data}/>
-			</div>
+					outputData={this.state.data}
+					delVal={this.delVal}
+				/>
+			</Grid>
 		)
 	},
 });
 
 var RequestQueryBox = React.createClass({
-	getInitialState: function(){
-		return {url: ''};
+	getInitialState: function() {
+		return {
+			url: '',
+			raw_data:'',
+			open: true,
+			filtered:[],
+			query:'',
+		};
+	},
+	handleChange: function(e) {
+		this.setState({url: e.target.value});
 	},
 	handleSubmit: function(e){
-		this.setState({url: this.refs.url.value});
-		this.props.onURLSubmit({url: this.refs.url.value});
+		var new_raw = this.props.onURLSubmit({url: this.state.url});
+		new_raw.done(function(data){
+			this.setState({raw_data: data});
+		}.bind(this));
+
+	},
+	findValue: function(e){
+		var query = e.target.value;
+		if (query.length>1) {
+			var to_search = this.state.raw_data.split("\n");
+			var results = [];
+			var bord = 20
+			for (var i = 0; i < to_search.length; i++) {
+				var is_res = to_search[i].search(query);
+				if (is_res>-1) {
+					results.push(to_search[i].substring(is_res- bord, is_res + query.length+ bord))
+				}to_search[i]
+			}
+			this.setState({query: query});
+			this.setState({filtered: results})
+
+		} else{
+			this.setState({filtered: []});
+		}
 	},
 	render: function(){
+		var filt = this.state.filtered;
 		return(
-			<div className="requestQueryBox" >
-				Enter URL: <input type="text" ref="url"/>
-				<button onClick={this.handleSubmit}>Update Details</button>
-			</div>
+			<Row>
+			<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
+			       Collapse Request Details
+			</Button>
+			<Panel header="Request Details" collapsible expanded={this.state.open}>
+				<Row>
+				<Col md={6} >
+					<Panel header="Request Input" >
+						<FormGroup className="requestQueryBox" >
+						<ControlLabel>URL:</ControlLabel>
+							<InputGroup >
+								<FormControl type="text" ref="url" onChange={this.handleChange}/>
+								<InputGroup.Button>
+									<Button onClick={this.handleSubmit} >Update Details</Button>
+								</InputGroup.Button>
+							</InputGroup>
+						</FormGroup>
+
+					</Panel>
+				</Col>
+				<Col md={6} >
+					<Panel header="Request Output">
+						<InputGroup>
+							<InputGroup.Addon>Find Text</InputGroup.Addon>
+							<FormControl type="text" onChange={this.findValue} />
+						</InputGroup>
+						<span>{this.state.filtered}</span>
+						<Table>
+							<tbody>
+							{
+								filt.map(function(data, index){
+									return <tr key={index}><td>{data}</td></tr>
+								}.bind(this))
+							}
+							</tbody>
+						</Table>
+						<textarea value={this.state.raw_data}/>
+					</Panel>
+				</Col>
+				</Row>
+			</Panel>
+			</Row>
+
 		)
 	},
 
@@ -162,19 +261,24 @@ var RequestQueryBox = React.createClass({
 
 var HandleQueryTable = React.createClass({
 	getInitialState: function(){
-		return {cells:{}};
+		return {
+			cells:{},
+			open:true
+		};
 	},
 	makeNewCell: function(){
-		var newVal = prompt("Enter a name for the new value", "NewVal")
-		var curr_keys = this.state.cells;
-		curr_keys[newVal]="";
-		this.setState({cells: curr_keys});
-		this.props.addNewCell(newVal)
+		var newVal = prompt("Enter a name for the new value", "NewVal");
+		if (newVal != null) {
+				var curr_keys = this.state.cells;
+				curr_keys[newVal]="";
+				this.setState({cells: curr_keys});
+				this.props.addNewCell(newVal)			
+		}
 	},
 	updateVal: function(key, val){
 		var curr_keys = this.state.cells;
 		curr_keys[key]= val;
-		this.setState({cells: curr_keys});		
+		this.setState({cells: curr_keys});
 		this.props.updateVal(key, val)
 	},
 	render: function(){
@@ -183,63 +287,74 @@ var HandleQueryTable = React.createClass({
 		var out_keys = Object.keys(this.props.outputData);
 		var out_values = this.props.outputData;
 		return(
-			<div>
-				<table is border="1">
-					<thead>
-						<tr>
-							{
-								keys.map(function(key, index){
-									return <th key={index}>{key}</th>
-								})
-							}
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							{
-								keys.map(function(key, index){
-									var val = values[key];
-									var ind = index;
-									return <InputTableCell 
-											value={val} 
-											key={ind}
-											keyname = {key}
-											updateVal={this.updateVal}
-										/>
-								}.bind(this))
-							}
-						</tr>
-					</tbody>
-				</table>
-				<button onClick={this.makeNewCell}> Add New value</button>
-				<button onClick={this.props.performHandleQuery}>Perform Handle Query</button>
-				
-				<table is border="1">
-					<thead>
-						<tr>
-							{
-								out_keys.map(function(key, index){
-									return <th key={index}>{key}</th>
-								})
-							}
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							{
-								out_keys.map(function(key, index){
-									var val = out_values[key];
-									var ind = index;
-									return <OutputTableCell 
-											value={val} 
-											key={ind}
-										/>
-								}.bind(this))
-							}
-						</tr>
-					</tbody>	
-				</table>				
-			</div>
+			<Row>
+			<Panel header="Query Details">
+				<Col md={6} >
+				<Panel header="Query Input">
+					<Table striped bordered condensed hover>
+						<thead>
+							<tr>
+								<th>
+									Variable Name
+								</th>
+								<th>
+									Xpath Query
+								</th>
+								<th>
+									Del
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+								{
+									keys.map(function(key, index){
+										var val = values[key];
+										var ind = index;
+										return <tr key={index}>
+												<th>{key}</th>
+													<InputTableCell
+														value={val}
+														keyname = {key}
+														updateVal={this.updateVal}
+													/>
+												<td><Button bsSize="small" onClick={() => this.props.delVal({key})} >x</Button></td>
+											</tr>
+									}.bind(this))
+								}
+						</tbody>
+					</Table>
+					<Button onClick={this.makeNewCell}> Add New value</Button>
+					<Button onClick={this.props.performHandleQuery}>Perform Handle Query</Button>
+					</Panel>
+				</Col>
+				<Col md={6}>
+					<Panel header="Query Output">
+					 <Table striped bordered condensed hover>
+						<thead>
+							<tr>
+								<th>Variable Name</th>
+								<th>Xpath Result</th>
+							</tr>
+						</thead>
+						<tbody>
+								{
+									out_keys.map(function(key, index){
+										var val = out_values[key];
+										var ind = index;
+										return  <tr key={index}><th>{key}</th>
+											<OutputTableCell
+												value={val}
+											/>
+											</tr>
+									}.bind(this))
+								}
+						</tbody>
+					</Table>
+					</Panel>
+				</Col>
+			</Panel>
+			</Row>
+
 		);
 	}
 
@@ -256,7 +371,7 @@ var InputTableCell = React.createClass({
 	},
 	render: function(){
 		return (
-			<td><input type="text" onChange={this.changeVal}/></td>
+			<td><FormControl type="text" ref="url" onChange={this.changeVal}/></td>
 		)
 	}
 });
@@ -269,7 +384,7 @@ var OutputTableCell = React.createClass({
 		return (
 			<td>{this.props.value}</td>
 		)
-	}	
+	}
 })
 
 

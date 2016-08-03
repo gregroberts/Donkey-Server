@@ -102,6 +102,7 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
+	
 	@route('/fetch/<uuid>', methods=['POST'])
 	def fetch(self, uuid):
 		query = request.json or {}
@@ -156,5 +157,14 @@ class QueryView(FlaskView):
 
 if __name__ == '__main__':
 	application = Flask(__name__)
+
 	QueryView.register(application)	
-	application.run(host='0.0.0.0', debug = True)
+	@application.errorhandler(500)
+	def internal_error(e):
+		print e
+		return Response(
+			response =dumps({'error':str(e)}),
+			status = 500,
+			mimetype = 'application/json'
+		)	
+	application.run(host='0.0.0.0', debug=False)

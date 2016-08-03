@@ -2,7 +2,7 @@ from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 import server_config
 from server_query_api import QueryView
-
+from json import dumps
 
 
 class DonkeyView(FlaskView):
@@ -57,6 +57,16 @@ class DonkeyView(FlaskView):
 
 if __name__ == '__main__':
 	application = Flask(__name__)
+
 	QueryView.register(application)
+
 	DonkeyView.register(application)
-	application.run('0.0.0.0', debug = True)
+	@application.errorhandler(500)
+	def internal_error(e):
+		print e
+		return Response(
+			response =dumps({'error':str(e)}),
+			status = 500,
+			mimetype = 'application/json'
+		)	
+	application.run('0.0.0.0', debug = False)
