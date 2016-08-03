@@ -45,7 +45,9 @@ class ServerQuery(Query):
 		else:
 			#existing query, read state from redis
 			self.uuid = uuid
-			self.read_details()
+			print uuid
+			self.load(uuid)
+			print self.name
 
 	def read_details(self):
 		keys = ['raw_data','data','handle_query','request_query',
@@ -122,28 +124,21 @@ class ServerQuery(Query):
 		self.uuid = uuid
 		to_get = ['query','name','description','parameters']
 		value = self.redis_conn.hmget('library:%s' % uuid, to_get)
-		print value
 		if value[1] == None:
 			value = self.redis_conn.hmget('queries:%s' % uuid, to_get)
+			print 'found cached'
 		if value[1] == None:
 			raise Exception('Could not find query')
-			
-#		if value[0] == None:
-			#
-#			if value[0] == None:
-				#
-#			else:
-#
-#		else:
-			val = eval(value[0])
-			self.freshness = val['request'].pop('@freshness')
-			self.grabber = val['request'].pop('@grabber')
-			self.handler = val['handle'].pop('@handler')
-			self.request_query = val['request']
-			self.handle_query = val['handle']
-			self.name = value[1]
-			self.description = value[2]
-			self.parameters = eval(value[3])
+		val = eval(value[0])
+		self.freshness = val['request'].pop('@freshness')
+		self.grabber = val['request'].pop('@grabber')
+		self.handler = val['handle'].pop('@handler')
+		self.request_query = val['request']
+		self.handle_query = val['handle']
+		self.name = value[1]
+		self.description = value[2]
+		self.parameters = eval(value[3])
+
 
 	def set_params(self, **params):
 		Query.set_params(self, **params)

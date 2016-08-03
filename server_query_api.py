@@ -23,8 +23,7 @@ class QueryView(FlaskView):
 			)
 
 	def load(self, uuid):
-		q = ServerQuery()
-		q.load(uuid)
+		q = ServerQuery(uuid=uuid)
 		res = {
 			'message':'Successfully loaded Query',
 			'uuid':uuid,

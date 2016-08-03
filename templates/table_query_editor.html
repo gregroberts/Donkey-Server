@@ -67,7 +67,8 @@ function hit_api(route, data, method){
 
 function hydrate_query(uuid){
 		var x=hit_api('/query/load/' + uuid, null, 'GET').then(function(data){
-			console.log(data);
+			var x = data.data;
+			x.uuid = uuid
 			return data.data;
 		})
 		return x;
@@ -97,9 +98,21 @@ var QueryBox = React.createClass({
 				return ret_val;
 			});
 			$.when(complete).then(function(ret){
+				console.log(uuid);
 				this.setState(ret);
 			}.bind(this));
+		} else {
+			var complete = $.when(hydrate_query(uuid)).then(function(ret_val){
+				return ret_val;
+			});
+			$.when(complete).then(function(ret){
+				console.log(ret);
+				this.setState(ret);
+				this.render();
+			}.bind(this));
+			
 		};
+
 	},
 	updateRequestQuery: function(data){
 		this.setState({
@@ -139,6 +152,18 @@ var QueryBox = React.createClass({
 			this.setState({description: val})
 		} ;
 	},
+	saveQuery: function () {
+		var data = $.when(
+				hit_api('/query/save/'+this.state.uuid,
+						{name: this.state.name,
+						 description: this.state.description
+						},
+						'POST')
+		).then(function(data){
+			console.log(data);
+			alert(data.message)
+		})
+	},
 	render: function(){
 		return (
 			<Grid className="queryBox">
@@ -148,7 +173,6 @@ var QueryBox = React.createClass({
 					data={this.state.request_query}
 					onURLSubmit = {this.updateRequestQuery}
 				/>
-
 				<HandleQueryTable
 					values={this.state.handle_query}
 					addNewCell={this.addNewCell}
@@ -157,9 +181,9 @@ var QueryBox = React.createClass({
 					outputData={this.state.data}
 					delVal={this.delVal}
 				/>
-
 				<SaveQueryTable
 					updateInfo={this.updateInfo}
+					saveQuery={this.saveQuery}
 				/>
 			</Grid>
 		)
@@ -176,8 +200,13 @@ var RequestQueryBox = React.createClass({
 			query:'',
 		};
 	},
+	componentDidMount: function(){
+		this.setState({url:this.props.data.url})
+		console.log(this);
+	},
 	handleChange: function(e) {
 		this.setState({url: e.target.value});
+
 	},
 	handleSubmit: function(e){
 		var new_raw = this.props.onURLSubmit({url: this.state.url});
@@ -195,7 +224,7 @@ var RequestQueryBox = React.createClass({
 			for (var i = 0; i < to_search.length; i++) {
 				var is_res = to_search[i].search(query);
 				if (is_res>-1) {
-					results.push(to_search[i].substring(is_res- bord, is_res + query.length+ bord))
+					results.push(to_search[i].substring(is_res - bord, is_res + query.length + bord))
 				}to_search[i]
 			}
 			this.setState({query: query});
@@ -219,7 +248,7 @@ var RequestQueryBox = React.createClass({
 						<FormGroup className="requestQueryBox" >
 						<ControlLabel>URL:</ControlLabel>
 						<InputGroup >
-							<FormControl type="text" ref="url" onChange={this.handleChange}/>
+							<FormControl type="text" ref="url" onChange={this.handleChange} value={this.props.data.url}/>
 							<InputGroup.Button>
 								<Button onClick={this.handleSubmit} >Update Details</Button>
 							</InputGroup.Button>
@@ -385,10 +414,10 @@ var SaveQueryTable = React.createClass({
 	getInitialState: function(){
 		return {open: false}
 	},
-		updateName: function(e) {
+	updateName: function(e) {
 		this.props.updateInfo('Name', e.target.value);
 	},
-		updateDesc: function(e) {
+	updateDesc: function(e) {
 		this.props.updateInfo('Desc', e.target.value);
 	},
 	render: function(){
@@ -404,6 +433,7 @@ var SaveQueryTable = React.createClass({
 						<ControlLabel>Description</ControlLabel>
 							<FormControl type="text" ref="description" onChange={this.updateDesc}/>
 					</FormGroup>
+					<Button onClick={this.props.saveQuery} bsStyle="info">Save</Button>
 				</Panel>
 			</Row>
 		)
