@@ -40,6 +40,7 @@ function hit_api(route, data, method){
 	function fail(jqX, status, error){
 		console.log(jqX);
 		alert('API Call to route \''+route+'\' failed with error:\n\n"'+jqX.responseJSON.error+'"');
+		unLoad();
 	}
 	if (data==null) {
 		return $.ajax({
@@ -76,6 +77,7 @@ function hydrate_query(uuid){
 
 var QueryBox = React.createClass({
 	getInitialState: function() {
+		
 	    return {
 		raw_data: "",
 		data: {},
@@ -202,7 +204,11 @@ var RequestQueryBox = React.createClass({
 	},
 	componentDidMount: function(){
 		this.setState({url:this.props.data.url})
-		console.log(this);
+		console.log(this.props);
+	},
+	componentDidReceiveProps: function(ppp){
+		this.setState({url:this.props.data.url})
+		console.log(ppp);
 	},
 	handleChange: function(e) {
 		this.setState({url: e.target.value});
@@ -248,7 +254,7 @@ var RequestQueryBox = React.createClass({
 						<FormGroup className="requestQueryBox" >
 						<ControlLabel>URL:</ControlLabel>
 						<InputGroup >
-							<FormControl type="text" ref="url" onChange={this.handleChange} value={this.props.data.url}/>
+							<FormControl type="text" ref="url" onChange={this.handleChange} />
 							<InputGroup.Button>
 								<Button onClick={this.handleSubmit} >Update Details</Button>
 							</InputGroup.Button>

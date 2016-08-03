@@ -10,7 +10,7 @@ class QueryView(FlaskView):
 	def new(self):
 		details = request.json or {}
 		q = ServerQuery(**details)
-		q.write_details()
+		q.save()
 		uuid = str(q.uuid)
 		res =  {
 			'uuid':uuid,
@@ -58,8 +58,12 @@ class QueryView(FlaskView):
 				mimetype = 'application/json'
 			)
 
-	def raw_data(self, uuid):
+	@route('/fetch/<uuid>', methods=['POST'])
+	def fetch(self, uuid):
+		query = request.json or {}
+		print query
 		q = ServerQuery(uuid = uuid)
+		q.fetch(**query)
 		res = {
 			'message': 'raw_data',
 			'data':q.raw_data,
@@ -71,38 +75,14 @@ class QueryView(FlaskView):
 			mimetype = 'application/json'
 		)
 
-	def data(self, uuid):
+	@route('/handle/<uuid>', methods=['POST'])
+	def handle(self, uuid):
+		query = request.json or {}
 		q = ServerQuery(uuid = uuid)
+		q.handle(**query)
 		res = {
 			'message': 'data',
 			'data':q.data,
-			'uuid':uuid
-		}
-		return Response(
-			response =dumps(res),
-			status = 200,
-			mimetype = 'application/json'
-		)
-
-	def handle_query(self, uuid):
-		q = ServerQuery(uuid = uuid)
-		print q.handle_query
-		res = {
-			'message': 'handle_query',
-			'data':q.handle_query,
-			'uuid':uuid
-		}
-		return Response(
-			response =dumps(res),
-			status = 200,
-			mimetype = 'application/json'
-		)
-
-	def request_query(self, uuid):
-		q = ServerQuery(uuid = uuid)
-		res = {
-			'message': 'request_query',
-			'data':q.request_query,
 			'uuid':uuid
 		}
 		return Response(
@@ -140,39 +120,6 @@ class QueryView(FlaskView):
 				status = 200,
 				mimetype = 'application/json'
 			)
-
-	@route('/fetch/<uuid>', methods=['POST'])
-	def fetch(self, uuid):
-		query = request.json or {}
-		print query
-		q = ServerQuery(uuid = uuid)
-		q.fetch(**query)
-		res = {
-			'message': 'raw_data',
-			'data':q.raw_data,
-			'uuid':uuid
-		}
-		return Response(
-			response =dumps(res),
-			status = 200,
-			mimetype = 'application/json'
-		)
-
-	@route('/handle/<uuid>', methods=['POST'])
-	def handle(self, uuid):
-		query = request.json or {}
-		q = ServerQuery(uuid = uuid)
-		q.handle(**query)
-		res = {
-			'message': 'data',
-			'data':q.data,
-			'uuid':uuid
-		}
-		return Response(
-			response =dumps(res),
-			status = 200,
-			mimetype = 'application/json'
-		)
 
 	@route('/run/<uuid>', methods=['POST'])
 	def run(self, uuid):
