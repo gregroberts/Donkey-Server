@@ -122,9 +122,19 @@ class ServerQuery(Query):
 		self.uuid = uuid
 		to_get = ['query','name','description','parameters']
 		value = self.redis_conn.hmget('library:%s' % uuid, to_get)
-		if value[0] == None:
+		print value
+		if value[1] == None:
+			value = self.redis_conn.hmget('queries:%s' % uuid, to_get)
+		if value[1] == None:
 			raise Exception('Could not find query')
-		else:
+			
+#		if value[0] == None:
+			#
+#			if value[0] == None:
+				#
+#			else:
+#
+#		else:
 			val = eval(value[0])
 			self.freshness = val['request'].pop('@freshness')
 			self.grabber = val['request'].pop('@grabber')

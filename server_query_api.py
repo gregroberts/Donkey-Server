@@ -10,6 +10,7 @@ class QueryView(FlaskView):
 	def new(self):
 		details = request.json or {}
 		q = ServerQuery(**details)
+		q.write_details()
 		uuid = str(q.uuid)
 		res =  {
 			'uuid':uuid,
