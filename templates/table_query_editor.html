@@ -38,7 +38,7 @@ function hit_api(route, data, method){
 		$('#loader').html('');
 	};
 	function fail(jqX, status, error){
-		console.log(jqX);
+		console.log(jqX, status, error);
 		alert('API Call to route \''+route+'\' failed with error:\n\n"'+jqX.responseJSON.error+'"');
 		unLoad();
 	}

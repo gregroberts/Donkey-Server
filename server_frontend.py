@@ -34,6 +34,11 @@ class DonkeyView(FlaskView):
 			prefix=server_config.web_prefix
 		)
 
+	def test(self):
+		return render_template(
+			'test_js.html'
+		)
+
 
 
 
