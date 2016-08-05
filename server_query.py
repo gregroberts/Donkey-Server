@@ -44,7 +44,6 @@ class ServerQuery(Query):
 			self.save()
 		else:
 			#existing query, read state from redis
-			self.uuid = uuid
 			self.load(uuid, where = from_where)
 
 	#replace handle, fetch and run with ones which interact with redis and wrap the originals
@@ -95,7 +94,7 @@ class ServerQuery(Query):
 		if where =='queries':
 			self.uuid = key
 		to_get = ['query','name','description','parameters',
-				'raw_data']
+				'raw_data','uuid']
 		value = self.redis_conn.hmget('%s:%s' %(where, key), to_get)
 		if value[0] == None:
 			raise Exception('Could not find query')
@@ -109,6 +108,7 @@ class ServerQuery(Query):
 		self.description = value[2]
 		self.parameters = eval(value[3])
 		self.raw_data = value[4]
+		self.uuid = value[5]
 
 
 	def set_params(self, **params):

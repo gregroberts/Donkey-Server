@@ -78,7 +78,7 @@ var QueryBox = React.createClass({
 	getInitialState: function() {
 	    return {
 			raw_data: "",
-			data: [],
+			data: {},
 			handle_query: {},
 			request_query: {},
 			uuid: "{{uuid}}"
@@ -100,24 +100,15 @@ var QueryBox = React.createClass({
 			$.when(complete).then(function(ret){
 				console.log(uuid);
 				this.setState(ret);
-				this.setState({display_name: ret.uuid});
-				if (this.state.data == undefined) {
-					console.log('dataaaa')
-					this.setState({data: []})
-				}
+				this.setState({display_name: ret.uuid})
 			}.bind(this));
 		} else {
 			var complete = $.when(hydrate_query(uuid, 'library')).then(function(ret_val){
 				return ret_val;
 			});
 			$.when(complete).then(function(ret){
-				console.log(ret);
 				this.setState(ret);
 				this.setState({display_name: ret.name})
-				if (this.state.data == undefined) {
-					console.log('dataaaa')
-					this.setState({data: []})
-				}
 				this.forceUpdate();
 			}.bind(this));
 
@@ -170,17 +161,18 @@ var QueryBox = React.createClass({
 						},
 						'POST')
 		).then(function(data){
-			alert(data.message)
-		})
+			alert(data.message);
+			this.setState({display_name: this.state.name})
+		}.bind(this))
 	},
 	render: function(){
-		var loc = '{{prefix}}/donkey/edit_table_query/'+this.state.display_name;
+		var loc = '{{prefix}}/donkey/edit_row_query/'+this.state.display_name;
 		return (
 			<Grid className="queryBox">
 			<PageHeader>XPathRow Query Constructor <small>{this.state.name}</small></PageHeader>
-			Link to this query: <a href={loc}>{loc}</a><br/>
-			<hr/>
-			Query Description: {this.state.description}
+				Link to this query: <a href={loc}>{loc}</a><br/>
+				<hr/>
+				Query Description: {this.state.description}
 				<RequestQueryBox
 					request_query={this.state.request_query}
 					raw_data = {this.state.raw_data}
@@ -191,7 +183,7 @@ var QueryBox = React.createClass({
 					addNewCell={this.addNewCell}
 					updateVal={this.updateHandleQueryVal}
 					performHandleQuery={this.submitHandleQuery}
-					output_data={this.state.data}
+					outputData={this.state.data}
 					delVal={this.delVal}
 				/>
 				<SaveQueryTable
@@ -309,17 +301,20 @@ var HandleQueryTable = React.createClass({
 	getInitialState: function(){
 		return {
 			cells:{},
-			_base: '',
-			open:true,
-			output_data:[],
+			open:true
 		};
 	},
 	shouldComponentUpdate: function(newProps, newState){
-		this.setState({
-			cells:newProps.values,
-			output_data:newProps.output_data
-		})
-		this.forceUpdate();
+		console.log('handleup');
+		console.log(newProps);
+		console.log(newState);
+		if (newProps.values!= this.state.cells) {
+			console.log('newPr');
+			this.setState({cells:newProps.values})
+		}
+
+		this.setState({cells: newState.cells});
+
 		return true;
 	},
 	makeNewCell: function(){
@@ -337,18 +332,11 @@ var HandleQueryTable = React.createClass({
 		this.setState({cells: curr_keys});
 		this.props.updateVal(key, val);
 	},
-	changeBase: function (e) {
-		var _b = e.target.value;
-		var curr= this.state.cells;
-		curr._base = _b;
-		this.setState({cells:curr})
-
-	},
 	render: function(){
 		var keys = Object.keys(this.props.values);
 		var values = this.props.values;
-		var out_keys = Object.keys(this.state.output_data);
-		var out_values = this.state.output_data;
+		var out_keys = Object.keys(this.props.outputData);
+		var out_values = this.props.outputData;
 		return(
 			<Row>
 			<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
@@ -357,12 +345,6 @@ var HandleQueryTable = React.createClass({
 			<Panel header="Query Details"  collapsible expanded={this.state.open}>
 				<Col md={6} >
 				<Panel header="Query Input">
-				<FormGroup>
-					<InputGroup>
-						<InputGroup.Addon>Query Base</InputGroup.Addon>
-						<FormControl type="text" ref="base" onChange={this.changeBase} value={this.state.cells._base} />
-					</InputGroup>
-				</FormGroup>
 				<Table striped bordered condensed hover>
 					<thead>
 						<tr>
@@ -374,19 +356,17 @@ var HandleQueryTable = React.createClass({
 					<tbody>
 					{
 						keys.map(function(key, index){
-							if (key != '_base') {
-								var val = values[key];
-								var ind = index;
-								return <tr>
-								<th key={index}>{key}</th>
-									<InputTableCell
-										value={val}
-										keyname = {key}
-										updateVal={this.updateVal}
-									/>
-								<td><Button bsSize="small" onClick={() => this.props.delVal({key})} >x</Button></td>
-									</tr>
-							}
+							var val = values[key];
+							var ind = index;
+							return <tr key={index}>
+							<th>{key}</th>
+								<InputTableCell
+									value={val}
+									keyname = {key}
+									updateVal={this.updateVal}
+								/>
+							<td><Button bsSize="small" onClick={() => this.props.delVal({key})} >x</Button></td>
+								</tr>
 						}.bind(this))
 					}
 					</tbody>
@@ -400,23 +380,20 @@ var HandleQueryTable = React.createClass({
 					 <Table striped bordered condensed hover>
 						<thead>
 							<tr>
-								{
-									keys.map(function (key, index) {
-										if (key != '_base') {
-											return <th>{key}</th>
-										}
-									})
-								}
+								<th>Variable Name</th>
+								<th>Xpath Result</th>
 							</tr>
 						</thead>
 						<tbody>
 								{
-									Object.keys(this.state.output_data).map(function(key, index){
+									out_keys.map(function(key, index){
+										var val = out_values[key];
 										var ind = index;
-										return <OutputTableRow
-												value={this.state.output_data[key]}
-												key={index}
+										return  <tr key={index}><th>{key}</th>
+											<OutputTableCell
+												value={val}
 											/>
+											</tr>
 									}.bind(this))
 								}
 						</tbody>
@@ -455,37 +432,13 @@ var InputTableCell = React.createClass({
 	}
 });
 
-var OutputTableRow = React.createClass({
-	getInitialState: function(){
-		return {val:[]}
-	},
-	shouldComponentUpdate: function(newProps) {
-		this.setState({val:newProps.value}, function(d){
-			this.setState({val: newProps.value});
-			this.forceUpdate();
-		}.bind(this));
-		return true;
-	},
-	render: function(){
-		return <tr>{
-			Object.keys(this.state.val).map(function (key, index) {
-			return <OutputTableCell value={this.state.val[key]} key={index} />
-		}.bind(this))
-	}</tr>
-	}
-})
-
 var OutputTableCell = React.createClass({
 	getInitialState: function(){
-		return {value:''}
-	},
-	shouldComponentUpdate: function (newProps) {
-		this.setState(newProps);
-		this.forceUpdate()
+		return {}
 	},
 	render: function(){
 		return (
-			<td>{this.state.value}</td>
+			<td>{this.props.value}</td>
 		)
 	}
 })

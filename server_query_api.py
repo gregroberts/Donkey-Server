@@ -28,8 +28,9 @@ class QueryView(FlaskView):
 		q = ServerQuery(uuid=uuid, from_where =details['where'])
 		res = {
 			'message':'Successfully loaded Query',
-			'uuid':uuid,
+			'uuid':q.uuid,
 			'data':{
+				'uuid':q.uuid,
 				'handler':q.handler,
 				'grabber':q.grabber,
 				'request_query':q.request_query,

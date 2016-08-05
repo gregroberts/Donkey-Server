@@ -170,7 +170,7 @@ var QueryRes = React.createClass({
 	render: function() {
 		var link_loc;
 		if (this.state.handle_query['@handler']=='XPATHROW') {
-			link_loc = '{{prefix}}/donkey/edit_table_query/'+this.state.name;
+			link_loc = '{{prefix}}/donkey/edit_row_query/'+this.state.name;
 		};
 		return <tr className={'hide-'+ ! this.props.show}>
 			<td><a href={link_loc} target="_blank">{this.state.name}</a>
