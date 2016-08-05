@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
-from server_query import ServerQuery
+from server_query import ServerQuery, list_queries
 from json import dumps
 
 
@@ -22,8 +22,10 @@ class QueryView(FlaskView):
 				mimetype= 'application/json'
 			)
 
+	@route('/load/<uuid>', methods=['POST'])
 	def load(self, uuid):
-		q = ServerQuery(uuid=uuid)
+		details = request.json
+		q = ServerQuery(uuid=uuid, from_where =details['where'])
 		res = {
 			'message':'Successfully loaded Query',
 			'uuid':uuid,
@@ -34,7 +36,9 @@ class QueryView(FlaskView):
 				'handle_query':q.handle_query,
 				'name':q.name,
 				'description':q.description,
-				'parameters':q.parameters
+				'parameters':q.parameters,
+				'raw_data': q.raw_data,
+				'data':q.data,
 			}
 		}
 		return Response(
@@ -47,7 +51,7 @@ class QueryView(FlaskView):
 	def save(self, uuid):
 		details = request.json
 		q = ServerQuery(uuid = uuid)
-		q.save(details['name'], details['description'])
+		q.save(details['name'], details['description'], where = 'library')
 		res = {
 			'uuid':uuid,
 			'message':'Successfully saved Query'
@@ -78,8 +82,10 @@ class QueryView(FlaskView):
 	@route('/handle/<uuid>', methods=['POST'])
 	def handle(self, uuid):
 		query = request.json or {}
+		print query
 		q = ServerQuery(uuid = uuid)
 		q.handle(**query)
+		print q.handle_query
 		res = {
 			'message': 'data',
 			'data':q.data,
@@ -135,6 +141,20 @@ class QueryView(FlaskView):
 			status = 200,
 			mimetype = 'application/json'
 		)
+
+	def list(self):
+		#return a list of everything in queries:*
+		results = list_queries()
+		res = {
+			'message':'query list',
+			'data': results,
+		}
+		return Response(
+			dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)
+		#print filter(lambda x: x['name'] != '', res)
 
 
 

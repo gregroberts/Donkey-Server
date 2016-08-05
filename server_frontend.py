@@ -10,7 +10,7 @@ class DonkeyView(FlaskView):
 		return render_template('index.html',
 			prefix = server_config.web_prefix)
 
-	
+
 
 	def docs(self, route ):
 		return render_template('%s_docs.html' % route,
@@ -21,6 +21,12 @@ class DonkeyView(FlaskView):
 		return render_template(
 			'table_query_editor.html',
 			uuid = uuid,
+			prefix=server_config.web_prefix
+		)
+
+	def list_queries(self):
+		return render_template(
+			'query_list.html',
 			prefix=server_config.web_prefix
 		)
 
@@ -50,8 +56,6 @@ class DonkeyView(FlaskView):
 						n = len(queries),
 						prefix = server_config.web_prefix)
 
-	def list(self):
-		return self.search()
 
 
 
@@ -67,5 +71,5 @@ if __name__ == '__main__':
 			response =dumps({'error':str(e)}),
 			status = 500,
 			mimetype = 'application/json'
-		)	
+		)
 	application.run('0.0.0.0', debug = True)

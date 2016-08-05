@@ -24,7 +24,7 @@ class ServerQuery(Query):
 	name = ''
 	description  =''
 	def __init__(self, grabber = None, handler =None, freshness = None,
-				uuid = None, name = '', description = ''):
+				uuid = None, name = '', description = '', from_where = 'queries'):
 		#for handling state
 		self.redis_conn = Redis(
 			host = server_config.REDIS_HOST,
@@ -45,7 +45,7 @@ class ServerQuery(Query):
 		else:
 			#existing query, read state from redis
 			self.uuid = uuid
-			self.load(uuid)
+			self.load(uuid, where = from_where)
 
 	#replace handle, fetch and run with ones which interact with redis and wrap the originals
 	def fetch(self,update = True,  **qry):
@@ -82,16 +82,21 @@ class ServerQuery(Query):
 			'saved_at':datetime.now().strftime('%Y-%m-%d %H:%M'),
 			'query':req_q,
 			'uuid':self.uuid,
-			'parameters':self.parameters
+			'parameters':self.parameters,
+			'raw_data': self.raw_data,
 		}
-		print val
-		self.redis_conn.hmset('%s:%s' % (where, self.uuid), val)
+		if where == 'queries':
+			key = self.uuid
+		elif where =='library':
+			key = name or self.name
+		self.redis_conn.hmset('%s:%s' % (where, key), val)
 
-	def load(self, uuid, where = 'queries'):
-		self.uuid = uuid
-		to_get = ['query','name','description','parameters']
-		value = self.redis_conn.hmget('%s:%s' %(where, uuid), to_get)
-		print value
+	def load(self, key, where = 'queries'):
+		if where =='queries':
+			self.uuid = key
+		to_get = ['query','name','description','parameters',
+				'raw_data']
+		value = self.redis_conn.hmget('%s:%s' %(where, key), to_get)
 		if value[0] == None:
 			raise Exception('Could not find query')
 		val = eval(value[0])
@@ -103,6 +108,7 @@ class ServerQuery(Query):
 		self.name = value[1]
 		self.description = value[2]
 		self.parameters = eval(value[3])
+		self.raw_data = value[4]
 
 
 	def set_params(self, **params):
@@ -110,6 +116,21 @@ class ServerQuery(Query):
 		self.write_details()
 
 
+def list_queries(where = 'library'):
+	redis_conn = Redis(
+			host = server_config.REDIS_HOST,
+			port = server_config.REDIS_PORT
+	)
+	vals = ['name','description','uuid','query']
+	saves = redis_conn.keys( '%s:*' %where)
+	print saves
+	from tqdm import tqdm
+	rr = []
+	for i in tqdm(saves):
+		val = redis_conn.hmget( i, vals)
+		val[-1] = eval(val[-1])
+		rr.append(dict(zip(vals, val)))
+	return rr
 
 
 
