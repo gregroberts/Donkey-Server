@@ -66,8 +66,8 @@ function hit_api(route, data, method){
 
 };
 
-function hydrate_query(uuid){
-		var x=hit_api('/query/load/' + uuid, null, 'GET').then(function(data){
+function hydrate_query(uuid, from_where){
+		var x=hit_api('/query/load/' + uuid, {where: from_where}, 'POST').then(function(data){
 			var x = data.data;
 			x.uuid = uuid
 			return data.data;
@@ -77,13 +77,12 @@ function hydrate_query(uuid){
 
 var QueryBox = React.createClass({
 	getInitialState: function() {
-		
 	    return {
-		raw_data: "",
-		data: {},
-		handle_query: {},
-		request_query: {},
-		uuid: "{{uuid}}"
+			raw_data: "",
+			data: {},
+			handle_query: {},
+			request_query: {},
+			uuid: "{{uuid}}"
 	    };
 	 },
 	componentDidMount: function(){
@@ -94,7 +93,7 @@ var QueryBox = React.createClass({
 			var get_uid = hit_api('/query/new/', {handler: "XPATHROW"}, 'POST');
 			var get_details = $.when(get_uid).then(function(data){
 				uuid = data.uuid;
-				return hydrate_query(uuid);
+				return hydrate_query(uuid, 'queries');
 			});
 			var complete = $.when(get_details).then(function(ret_val){
 				return ret_val;
@@ -104,15 +103,14 @@ var QueryBox = React.createClass({
 				this.setState(ret);
 			}.bind(this));
 		} else {
-			var complete = $.when(hydrate_query(uuid)).then(function(ret_val){
+			var complete = $.when(hydrate_query(uuid, 'library')).then(function(ret_val){
 				return ret_val;
 			});
 			$.when(complete).then(function(ret){
-				console.log(ret);
 				this.setState(ret);
-				this.render();
+				this.forceUpdate();
 			}.bind(this));
-			
+
 		};
 
 	},
@@ -162,7 +160,6 @@ var QueryBox = React.createClass({
 						},
 						'POST')
 		).then(function(data){
-			console.log(data);
 			alert(data.message)
 		})
 	},
@@ -172,7 +169,8 @@ var QueryBox = React.createClass({
 			<PageHeader>XPathRow Query Constructor <small>{this.state.name}</small></PageHeader>
 				{this.state.description}
 				<RequestQueryBox
-					data={this.state.request_query}
+					request_query={this.state.request_query}
+					raw_data = {this.state.raw_data}
 					onURLSubmit = {this.updateRequestQuery}
 				/>
 				<HandleQueryTable
@@ -186,6 +184,8 @@ var QueryBox = React.createClass({
 				<SaveQueryTable
 					updateInfo={this.updateInfo}
 					saveQuery={this.saveQuery}
+					name={this.state.name}
+					description= {this.state.description}
 				/>
 			</Grid>
 		)
@@ -202,13 +202,10 @@ var RequestQueryBox = React.createClass({
 			query:'',
 		};
 	},
-	componentDidMount: function(){
-		this.setState({url:this.props.data.url})
-		console.log(this.props);
-	},
-	componentDidReceiveProps: function(ppp){
-		this.setState({url:this.props.data.url})
-		console.log(ppp);
+	shouldComponentUpdate: function(newProps, newState){
+		this.setState({url: newProps.request_query.url});
+		this.setState({raw_data: newProps.raw_data});
+		return true;
 	},
 	handleChange: function(e) {
 		this.setState({url: e.target.value});
@@ -222,7 +219,11 @@ var RequestQueryBox = React.createClass({
 
 	},
 	findValue: function(e){
-		var query = e.target.value;
+		var escape = function(s) {
+		    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+		};
+
+		var query = escape(e.target.value);
 		if (query.length>1) {
 			var to_search = this.state.raw_data.split("\n");
 			var results = [];
@@ -254,7 +255,7 @@ var RequestQueryBox = React.createClass({
 						<FormGroup className="requestQueryBox" >
 						<ControlLabel>URL:</ControlLabel>
 						<InputGroup >
-							<FormControl type="text" ref="url" onChange={this.handleChange} />
+							<FormControl type="text" ref="url" onChange={this.handleChange} value={this.state.url}/>
 							<InputGroup.Button>
 								<Button onClick={this.handleSubmit} >Update Details</Button>
 							</InputGroup.Button>
@@ -297,6 +298,19 @@ var HandleQueryTable = React.createClass({
 			cells:{},
 			open:true
 		};
+	},
+	shouldComponentUpdate: function(newProps, newState){
+		console.log('handleup');
+		console.log(newProps);
+		console.log(newState);
+		if (newProps.values!= this.state.cells) {
+			console.log('newPr');
+			this.setState({cells:newProps.values})
+		}
+
+		this.setState({cells: newState.cells});
+
+		return true;
 	},
 	makeNewCell: function(){
 		var newVal = prompt("Enter a name for the new value", "NewVal");
@@ -391,16 +405,24 @@ var HandleQueryTable = React.createClass({
 
 var InputTableCell = React.createClass({
 	getInitialState: function(){
-		return {}
+		return {val:''}
+	},
+	shouldComponentUpdate: function(newProps){
+		this.setState({val: newProps.value}, function(){
+			this.setState({val: newProps.value});
+			this.forceUpdate()
+		});
+		return true;
 	},
 	changeVal: function(e){
-		var val = e.target.value;
+		var value = e.target.value;
 		var key = this.props.keyname;
-		this.props.updateVal(key, val);
+		this.props.updateVal(key, value);
+		this.setState({val: value});
 	},
 	render: function(){
 		return (
-			<td><FormControl type="text" ref="url" onChange={this.changeVal}/></td>
+			<td><FormControl type="text" onChange={this.changeVal} value={this.state.val}/></td>
 		)
 	}
 });
@@ -418,13 +440,30 @@ var OutputTableCell = React.createClass({
 
 var SaveQueryTable = React.createClass({
 	getInitialState: function(){
-		return {open: false}
+		return {
+			open: false,
+			name:'',
+			description:''
+		}
 	},
 	updateName: function(e) {
 		this.props.updateInfo('Name', e.target.value);
 	},
 	updateDesc: function(e) {
 		this.props.updateInfo('Desc', e.target.value);
+	},
+	shouldComponentUpdate: function(newProps){
+		this.setState({
+				name: newProps.name,
+				description: newProps.description
+			}, function(){
+			this.setState({
+					name: newProps.name,
+					description: newProps.description
+			});
+			this.forceUpdate()
+		});
+		return true;
 	},
 	render: function(){
 		return(
@@ -435,9 +474,9 @@ var SaveQueryTable = React.createClass({
 				<Panel header="Query Information"  collapsible expanded={this.state.open}>
 					<FormGroup className="SaveQueryTable" >
 						<ControlLabel>Name</ControlLabel>
-							<FormControl type="text" ref="name" onChange={this.updateName}/>
+							<FormControl type="text" ref="name" onChange={this.updateName} value={this.state.name}/>
 						<ControlLabel>Description</ControlLabel>
-							<FormControl type="text" ref="description" onChange={this.updateDesc}/>
+							<FormControl type="text" ref="description" onChange={this.updateDesc} value={this.state.description}/>
 					</FormGroup>
 					<Button onClick={this.props.saveQuery} bsStyle="info">Save</Button>
 				</Panel>
