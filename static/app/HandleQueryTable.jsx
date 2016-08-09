@@ -27,21 +27,16 @@ class HandleQueryTable extends Component{
 	}	
 
 	shouldComponentUpdate(newProps, newState){
-		var _base, resFormat;
-		if (newProps.values._base==undefined) {
-			_base = '';
-			resFormat = newState.resFormat || 'Row';
-		} else {
-			_base = newProps.values._base;
-			resFormat = newState.resFormat || 'Table';
-		}
 		this.setState({
 			cells:newProps.values,
 			output_data: newProps.output_data,
-			_base: _base,
-			resFormat: resFormat
+			_base: newProps.values._base,
 		}, function(){
 			this.forceUpdate();
+			if (this.state._base !='') {
+				this.setState({resFormat: 'Table'})
+				this.setState({_base:newProps.values._base})
+			};
 		});	
 		return true;
 	}
@@ -62,7 +57,10 @@ class HandleQueryTable extends Component{
 	}
 
 	resFormat(e){
+		var v = e.target.parentNode.innerText;
+		if (v=='Row') this.setState({_base:''});
 		this.setState({resFormat: e.target.parentNode.innerText});
+
 	}
 	changeBase(e){
 		this.setState({_base: e.target.value})
