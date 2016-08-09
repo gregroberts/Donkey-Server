@@ -123,10 +123,8 @@ def list_queries(where = 'library'):
 	)
 	vals = ['name','description','uuid','query']
 	saves = redis_conn.keys( '%s:*' %where)
-	print saves
-	from tqdm import tqdm
 	rr = []
-	for i in tqdm(saves):
+	for i in saves:
 		val = redis_conn.hmget( i, vals)
 		val[-1] = eval(val[-1])
 		rr.append(dict(zip(vals, val)))

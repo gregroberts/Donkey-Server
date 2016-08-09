@@ -6,7 +6,7 @@ from json import dumps
 
 
 class DonkeyView(FlaskView):
-	def index(self):
+	def index_old(self):
 		return render_template('index.html',
 			prefix = server_config.web_prefix)
 
@@ -34,19 +34,26 @@ class DonkeyView(FlaskView):
 			prefix=server_config.web_prefix
 		)
 
-	def test(self):
+	def index(self):
 		return render_template(
 			'test_js.html'
 		)
 
 
+application = Flask(__name__)
+
+QueryView.register(application)
+
+@application.route('/donkey/', defaults={'path':''})
+@application.route('/<path:path>')
+def index_old(path):
+	return render_template('test_js.html',
+		prefix = server_config.web_prefix)
 
 
 if __name__ == '__main__':
-	application = Flask(__name__)
 
-	QueryView.register(application)
-	DonkeyView.register(application)
+	#DonkeyView.register(application)
 	@application.errorhandler(500)
 	def internal_error(e):
 		print e

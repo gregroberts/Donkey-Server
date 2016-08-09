@@ -1,0 +1,26 @@
+﻿IFADIFNISA
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch refactor
+# Changes to be committed:
+#	new file:   .babelrc
+#	modified:   .gitignore
+#	new file:   package.json
+#	modified:   server_frontend.py
+#	deleted:    static/Collector_Flow.PNG
+#	new file:   static/app/HandleQueryTable.jsx
+#	new file:   static/app/InputTableCell.jsx
+#	new file:   static/app/OutPutBits.jsx
+#	new file:   static/app/RequestQueryBox.jsx
+#	new file:   static/app/SaveQueryTable.jsx
+#	new file:   static/app/api_functions.jsx
+#	new file:   static/app/home.jsx
+#	new file:   static/app/index.jsx
+#	new file:   static/app/query.jsx
+#	new file:   static/bundle.js
+#	new file:   static/bundle.js.map
+#	new file:   static/js/donkey/OutPutBoxes.js
+#	modified:   templates/test_js.html
+#	new file:   webpack.config.js
+#
+

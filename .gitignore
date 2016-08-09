@@ -55,3 +55,6 @@ cache.db
 *.pyc
 *.pyc
 static/js/require.js
+
+
+node_modules
