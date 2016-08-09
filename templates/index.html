@@ -1,68 +1,14 @@
 <html>
-<head>
-	<title>
-	Donkey
-	</title>
-	<script src="{{prefix}}/static/jquery-2.1.4.min.js"></script>
-	<script src="{{prefix}}/static/bootstrap-3.3.5/js/bootstrap.min.js"></script>
-	<link href="{{prefix}}/static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
-</head>
+
 <body>
-<div class='container'>
-<h1>Donkey</h1>
-Welcome to the Donkey Server. this page contains links to all the other pages
-<hr>
-<div class="row">
-	<h2>Construct A new Query</h2>
-
-	<a href="{{prefix}}/donkey/edit_row_query/new" class="btn btn-primary" role="button" target="_blank">Construct a new Row query</a></br>
-	Row queries are designed to grab exactly one row of data from a particualr web page.
-	<hr>
-
-	<a href="{{prefix}}/donkey/list_queries/" class="btn btn-primary" role="button" target="_blank">View all existing queries</a> - this will list all the queries saved on the server
-	<hr>
-	<a href="{{prefix}}/donkey/collectors/" class="btn btn-primary" role="button">View all existing Collectors</a> - this will list all the Collections saved on the server
-	<hr>
-	<a href="{{prefix}}/donkey/dashboard/" class="btn btn-primary" role="button">RQ Dashboard</a> - Opens the Redis Queue Dashboard, to view active collections
-	<hr>
-
-
-	<h2>Documentation</h2>
-	<ul>
-		<li>
-			<a href="{{prefix}}/donkey/docs/home">Documentation Home</a> - Links all the different sections of documentation
-		</li>
-		<li>
-			<a href="{{prefix}}/donkey/docs/api">API Documentation</a> - Details of all the different routes available through the web API
-		</li>
-		<li>
-			<a href="{{prefix}}/donkey/docs/query">Query Documentation</a> - Instructions on how to write new queries
-			<ul>
-				<li>
-					<a href="{{prefix}}/donkey/docs/grabber">Grabber documentation</a> - Documentation on how to use the different grabbers offered by Donkey
-				</li>
-				<li>
-					<a href="{{prefix}}/donkey/docs/handler">Handler Documentation</a> - Documentation on the various handlers for parsing grabber responses
-				</li>
-				<li>
-					<a href="{{prefix}}/donkey/docs/subquery">Subquery Documentation</a> - Documentation on how to use Donkey's subquery feature
-				</li>
-			</ul>
-		</li>
-		<li>
-			<a href="{{prefix}}/donkey/docs/collector">Collector Documentation</a> - Documentation on building collectors
-		</li>
-	</ul>
-
-</div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){
-	$('#search').on('click', function() {
-		var term = $('#searchTerm').val();
-		window.open('{{prefix}}/donkey/search/'+term);
-	})
-})
-</script>
+  <div id="loader"></div>
+  <div id="core"></div>
+  <link href="/static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
 </body>
+<style type="text/css">
+  .hide-true{
+    display: none;
+  }
+</style>
+<script  src="/static/bundle.js"></script>
 </html>

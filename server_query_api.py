@@ -66,7 +66,6 @@ class QueryView(FlaskView):
 	@route('/fetch/<uuid>', methods=['POST'])
 	def fetch(self, uuid):
 		query = request.json or {}
-		print query
 		q = ServerQuery(uuid = uuid)
 		q.fetch(**query)
 		res = {
@@ -83,10 +82,8 @@ class QueryView(FlaskView):
 	@route('/handle/<uuid>', methods=['POST'])
 	def handle(self, uuid):
 		query = request.json or {}
-		print query
 		q = ServerQuery(uuid = uuid)
 		q.handle(**query)
-		print q.handle_query
 		res = {
 			'message': 'data',
 			'data':q.data,
