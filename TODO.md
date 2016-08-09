@@ -11,9 +11,3 @@ simplify it all
 
 scheduler.py
 Clean it up for God's Sake
-
-
-
-#Front end
-Tidy up considerably
-Redo Documentation

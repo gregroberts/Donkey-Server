@@ -27,14 +27,13 @@ class HandleQueryTable extends Component{
 	}	
 
 	shouldComponentUpdate(newProps, newState){
-		console.log('HANLE',newProps);
 		var _base, resFormat;
 		if (newProps.values._base==undefined) {
 			_base = '';
-			resFormat = 'Row';
+			resFormat = newState.resFormat || 'Row';
 		} else {
 			_base = newProps.values._base;
-			resFormat = 'Table';
+			resFormat = newState.resFormat || 'Table';
 		}
 		this.setState({
 			cells:newProps.values,
@@ -42,7 +41,6 @@ class HandleQueryTable extends Component{
 			_base: _base,
 			resFormat: resFormat
 		}, function(){
-			console.log(this.state)
 			this.forceUpdate();
 		});	
 		return true;
@@ -74,19 +72,18 @@ class HandleQueryTable extends Component{
 	render(){
 		var keys = Object.keys(this.props.values || {});
 		var values = this.props.values;
-		if (this.props.output_data.length>0) {
+		if (this.props.output_data != undefined) {
 			if (Object.keys(this.props.output_data)[0]==0) {
 				var out_keys = Object.keys(this.props.output_data)[0];
 				var out_values = this.props.output_data;
 			} else {
 				var out_keys = Object.keys(this.props.output_data);
-				var out_values = [this.props.output_data];
+				var out_values = this.props.output_data;
 			};			
 		} else {
 			var out_keys = [];
 			var out_values = [[]];
 		};
-
 		return(
 			<Row>
 			<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
@@ -97,14 +94,12 @@ class HandleQueryTable extends Component{
 				<Panel header="Query Input">
 				<ControlLabel>Response Format: </ControlLabel>
 				    <ButtonGroup onChange={this.resFormat}>
-					      <Radio inline checked={this.state.resFormat=='Row'}>
+					      <Radio inline checked={this.state.resFormat==='Row'} >
 					        Row
 					      </Radio >
-					      {' '}
-					      <Radio inline  checked={this.state.resFormat=='Table'}>
+					      <Radio inline  checked={this.state.resFormat==='Table'}>
 					        Table
 					      </Radio>
-					      {' '}
 				    </ButtonGroup>
 				    <InputGroup className={'hide-'+(this.state.resFormat=='Row')} >
 				    	<InputGroup.Addon>Base Query</InputGroup.Addon>
@@ -148,37 +143,55 @@ class HandleQueryTable extends Component{
 					<Panel header="Query Output">
 					 <Table striped bordered condensed hover>
 						<thead>
-							{
-								(() => {
-								if (this.state.resFormat=='Row') {
-										return <tr>
-											<th>Variable Name</th>
-											<th>Xpath Result</th>
-										</tr>
-									} else{
-										return <tr>
-											{
-												keys.map(function(key, index){
-													if (key!='_base') {
-														return <th key={index}>{key}</th>
-													};
-													
-												})
-											}
-										</tr>
-									};								
-								})()
-							}
+						{
+							(() => {
+							if (this.state.resFormat=='Row') {
+									return <tr>
+										<th>Variable Name</th>
+										<th>Xpath Result</th>
+									</tr>
+								} else{
+									return <tr>
+										{
+											keys.map(function(key, index){
+												if (key!='_base') {
+													return <th key={index}>{key}</th>
+												};
+												
+											})
+										}
+									</tr>
+								};								
+							})()
+						}
 						</thead>
 						<tbody>
-								{
-									Object.keys(out_values).map(function(key, index){
-										var ind = index;
-										return <OutputTableRow
-												value={out_values[key]}
-												key={index}/>
-									}.bind(this))
-								}
+						{
+							(() =>{
+								if (this.state.resFormat=='Table') {
+									return (
+										Object.keys(out_values).map(function(key, index){
+											var ind = index;
+											return <OutputTableRow
+													value={out_values[key]}
+													key={index}/>
+										}.bind(this))
+									)
+								} else{
+									return (
+										out_keys.map(function(key, index){
+											var val = out_values[key];
+											var ind = index;
+											return  <tr key={index}><th>{key}</th>
+												<OutputTableCell
+													value={val}
+												/>
+												</tr>
+										}.bind(this))	
+									)				
+								};
+							})()
+						}
 						</tbody>
 					</Table>
 					</Panel>

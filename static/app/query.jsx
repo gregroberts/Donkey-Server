@@ -121,11 +121,9 @@ class Query extends Component {
 	}
 
 	render(){
-		var loc = '{{prefix}}/donkey/edit_table_query/'+this.state.display_name;
 		return (
 			<Grid className="queryBox">
 				<PageHeader>XPathRow Query Constructor <small>{this.state.name}</small></PageHeader>
-				Link to this query: <a href={loc}>{loc}</a><br/>
 				<hr/>
 				Query Description: {this.state.description}
 					<RequestQueryBox
