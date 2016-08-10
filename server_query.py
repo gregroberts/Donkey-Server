@@ -113,7 +113,7 @@ class ServerQuery(Query):
 
 	def set_params(self, **params):
 		Query.set_params(self, **params)
-		self.write_details()
+		self.save()
 
 
 def list_queries(where = 'library'):
