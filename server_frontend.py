@@ -23,7 +23,7 @@ def internal_error(e):
 
 application.config['REDIS_HOST'] = server_config.REDIS_HOST
 application.config['REDIS_PORT'] = server_config.REDIS_PORT
-application.config['RQ_POLL_INTERVALL'] = 2000
+application.config['RQ_POLL_INTERVAL'] = 2000
 application.config['APPLICATION_ROOT'] = server_config.web_prefix
 application.register_blueprint(rq_dashboard.blueprint, url_prefix='/redis_queue')
 
