@@ -60,8 +60,8 @@ def consume_data(job_id, table_name):
 			host=server_config.REDIS_HOST,
 			port=server_config.REDIS_PORT,
 		)
-	job = job.Job.fetch(job_id, rc)
-	results = job.result
+	j = job.Job.fetch(job_id, rc)
+	results = j.result
 	#if failed, fail die gracefully, log fail
 	insert_res_set(table_name, results)
 
