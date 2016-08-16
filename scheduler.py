@@ -4,6 +4,8 @@ import server_config
 import MySQLdb as mdb
 from collector import Collector
 from datetime import datetime
+from MySQLdb.cursors import DictCursor
+
 
 def get_sql_conn():
 	conn = mdb.connect(
@@ -78,6 +80,9 @@ class Collection:
 		self.query_name = query_name
 		self.collector = Collector(query_name, collection_name, queue_name)
 
+
+	#TODO ADD THING TO REGISTER BIRTH AND DEATH OF COLLECTOR
+
 	def schedule(self, job_parameters):
 		self.collector.set_parameters(job_parameters)
 		self.collector.run_jobs()
@@ -89,6 +94,27 @@ class Collection:
 			kwargs = {'job_id':job.id,'table_name':self.table_name},
 			depends_on = job
 		)
+
+	def schedule_from_json(self, json):
+		self.schedule(json)
+
+	def schedule_from_sql(self, sql):
+		conn = mdb.connect(
+			host=server_config.SRC_SQL_HOST,
+			port=server_config.SRC_SQL_PORT,
+			user=server_config.SRC_SQL_USER,
+			passwd=server_config.SRC_SQL_PSWD,
+			db=server_config.SRC_SQL_SCHM
+		)
+		c = conn.cursor(cursorclass = DictCursor)
+		c.execute(sql)
+		res = c.fetchall()
+		c.close()
+		conn.close()
+		self.schedule(res)
+
+
+
 
 
 
