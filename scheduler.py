@@ -19,7 +19,7 @@ def mk_table(table_name, columns, db_cursor):
 	col_stmnt = ',\n'.join(map(lambda x: '`%s` TEXT(500)' % x,columns))
 	statement = '''CREATE TABLE IF NOT EXISTS `%s`.`%s` (
 		`id` int(11) NOT NULL AUTO_INCREMENT,
-		`Collected` datetime DEFAULT 0,
+		`Collected` datetime,
 		`etl_status` int(2) DEFAULT 0,
 		%s,
 		PRIMARY KEY (`id`)
