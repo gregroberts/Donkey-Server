@@ -1,6 +1,9 @@
 from rq import Queue
+from redis import Redis
 import server_config
 import MySQLdb as mdb
+from collector import Collector
+
 
 def get_sql_conn():
 	conn = mdb.connect(
@@ -61,7 +64,12 @@ def consume_data(job_id, table_name):
 class Collection:
 	def __init__(self, collection_name, query_name, queue_name, table_name):
 		self.collection_name = collection_name
-		self.queue = rq.Queue('collections')
+		self.redis_conn = Redis(
+			host=server_config.REDIS_HOST,
+			port=server_config.REDIS_PORT,
+			password=server_config.REDIS_PW
+		)
+		self.queue = Queue('collections',connection = self.redis_conn)
 		self.query_name = query_name
 		self.collector = Collector(query_name, collection_name, queue_name)
 

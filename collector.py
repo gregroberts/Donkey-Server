@@ -1,7 +1,7 @@
 from server_query import ServerQuery
 from datetime import datetime
 from rq import Queue
-from server_config import REDIS_HOST,REDIS_PORT
+from server_config import REDIS_HOST,REDIS_PORT,REDIS_PW
 from redis import Redis
 
 
@@ -25,7 +25,7 @@ class Collector:
 		self.log('collector instanciated with name %s' % self.collector_name)
 		self.query_name = query_name
 		self.log('loading query with name %s' % self.query_name)
-		self.redis_conn = Redis(host=REDIS_HOST,port=REDIS_PORT)
+		self.redis_conn = Redis(host=REDIS_HOST,port=REDIS_PORT, password=REDIS_PW)
 		self.queue = Queue(queue_name, connection=self.redis_conn, async=True)
 		try:
 			self.Query = ServerQuery(uuid = query_name, from_where='library')
