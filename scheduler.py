@@ -67,7 +67,6 @@ class Collection:
 		self.redis_conn = Redis(
 			host=server_config.REDIS_HOST,
 			port=server_config.REDIS_PORT,
-			password=server_config.REDIS_PW
 		)
 		self.queue = Queue('collections',connection = self.redis_conn)
 		self.query_name = query_name

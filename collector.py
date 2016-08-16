@@ -25,7 +25,7 @@ class Collector:
 		self.log('collector instanciated with name %s' % self.collector_name)
 		self.query_name = query_name
 		self.log('loading query with name %s' % self.query_name)
-		self.redis_conn = Redis(host=REDIS_HOST,port=REDIS_PORT, password=REDIS_PW)
+		self.redis_conn = Redis(host=REDIS_HOST,port=REDIS_PORT)
 		self.queue = Queue(queue_name, connection=self.redis_conn, async=True)
 		try:
 			self.Query = ServerQuery(uuid = query_name, from_where='library')

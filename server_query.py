@@ -29,7 +29,6 @@ class ServerQuery(Query):
 		self.redis_conn = Redis(
 			host = server_config.REDIS_HOST,
 			port = server_config.REDIS_PORT,
-			password=server_config.REDIS_PW
 		)
 
 		#initiate normal query
@@ -121,7 +120,6 @@ def list_queries(where = 'library'):
 	redis_conn = Redis(
 			host = server_config.REDIS_HOST,
 			port = server_config.REDIS_PORT,
-			password=server_config.REDIS_PW
 	)
 	vals = ['name','description','uuid','query']
 	saves = redis_conn.keys( '%s:*' %where)
