@@ -86,7 +86,7 @@ class Collection:
 	def add_finisher(self, job):
 		self.queue.enqueue(
 			consume_data,
-			kwargs = {'job':job.id,'table_name':self.table_name},
+			kwargs = {'job_id':job.id,'table_name':self.table_name},
 			depends_on = job
 		)
 
