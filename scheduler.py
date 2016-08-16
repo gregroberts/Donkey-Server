@@ -1,4 +1,4 @@
-from rq import Queue
+from rq import Queue, job
 from redis import Redis
 import server_config
 import MySQLdb as mdb
@@ -56,7 +56,12 @@ def insert_res_set(table_name, res):
 	conn.close()
 
 def consume_data(job_id, table_name):
-	results = job_id.result
+	rc = Redis(
+			host=server_config.REDIS_HOST,
+			port=server_config.REDIS_PORT,
+		)
+	job = job.Job.fetch(job_id, rc)
+	results = job.result
 	#if failed, fail die gracefully, log fail
 	insert_res_set(table_name, results)
 
@@ -68,6 +73,7 @@ class Collection:
 			host=server_config.REDIS_HOST,
 			port=server_config.REDIS_PORT,
 		)
+		self.table_name = table_name
 		self.queue = Queue('collections',connection = self.redis_conn)
 		self.query_name = query_name
 		self.collector = Collector(query_name, collection_name, queue_name)
@@ -80,7 +86,7 @@ class Collection:
 	def add_finisher(self, job):
 		self.queue.enqueue(
 			consume_data,
-			kwargs = {'job_id':uuid,'table_name':self.table_name},
+			kwargs = {'job':job.id,'table_name':self.table_name},
 			depends_on = job
 		)
 
