@@ -3,7 +3,7 @@ from redis import Redis
 import server_config
 import MySQLdb as mdb
 from collector import Collector
-
+from datetime import datetime
 
 def get_sql_conn():
 	conn = mdb.connect(
