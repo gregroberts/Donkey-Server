@@ -8,7 +8,7 @@ from MySQLdb.cursors import DictCursor
 from collection import Collection, get_sql_conn
 
 def get_schedule():
-	conn = get_sql_conn('s')
+	conn = get_sql_conn()
 	c = conn.cursor(cursorclass=DictCursor)
 	c.execute('''
 	SELECT *,
@@ -23,7 +23,7 @@ def get_due_items():
 	colls = get_schedule()
 	todo = filter(
 		lambda x: x['IsRunning'] == 0 and \
-			     x['due'] == True,
+			     x['due'] == 1,
 			     colls
 		)
 	print '%d Collections todo' % len(colls)
@@ -37,7 +37,7 @@ def birth(_id):
 		SET IsRunning = 1,
 		     LastRun = curdate()
 		WHERE id = %(id)s
-	''', params = {'id':_id})
+	''', args = {'id':_id})
 	c.close()
 	conn.commit()
 	conn.close()
@@ -49,13 +49,14 @@ def finit(_id):
 		UPDATE Collections
 		SET IsRunning = 0
 		WHERE id = %(id)s
-	''', params = {'id':_id})
+	''', args = {'id':_id})
 	c.close()
 	conn.commit()
 	conn.close()
 
 def schedule_due_things():
 	things = get_due_items()
+	print things
 	for item in things:
 		birth(item['id'])
 		x =  Collection(
@@ -81,6 +82,4 @@ def schedule_due_things():
 		queue.enqueue(finit, kwargs={'_id':item['id']}, depends_on=last)
 
 
-if __name__ == '__main__':
-	schedule_due_things()
 	
