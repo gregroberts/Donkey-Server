@@ -15,7 +15,7 @@ class RequestQueryBox extends Component{
 			filtered:[],
 			query:'',
 		}
-	}	
+	}
 	shouldComponentUpdate(newProps, newState){
 		this.setState({url: newProps.request_query.url});
 		this.setState({raw_data: newProps.raw_data});
@@ -29,6 +29,8 @@ class RequestQueryBox extends Component{
 		new_raw.done(function(data){
 			this.setState({raw_data: data});
 		}.bind(this));
+
+
 
 	}
 	findValue(e){
@@ -58,13 +60,8 @@ class RequestQueryBox extends Component{
 	render(){
 		var filt = this.state.filtered;
 		return(
-			<Row>
-			<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
-			       Collapse Request Details
-			</Button>
-			<Panel header="Request Details" collapsible expanded={this.state.open}>
+			<div>
 				<Row>
-				<Col md={6} >
 					<Panel header="Request Input" >
 						<FormGroup className="requestQueryBox" >
 						<ControlLabel>URL:</ControlLabel>
@@ -76,8 +73,8 @@ class RequestQueryBox extends Component{
 						</InputGroup>
 						</FormGroup>
 					</Panel>
-				</Col>
-				<Col md={6} >
+				</Row>
+				<Row>
 					<Panel header="Request Output">
 						<InputGroup>
 							<InputGroup.Addon>Find Text</InputGroup.Addon>
@@ -95,10 +92,8 @@ class RequestQueryBox extends Component{
 						</Table>
 						<textarea value={this.state.raw_data}/>
 					</Panel>
-				</Col>
 				</Row>
-			</Panel>
-			</Row>
+			</div>
 
 		)
 	}

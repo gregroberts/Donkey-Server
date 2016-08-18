@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {PageHeader, Grid} from 'react-bootstrap';
+import {PageHeader, Grid, Tabs, Tab, ControlLabel, FormControl, ButtonGroup, Radio} from 'react-bootstrap';
 
 import RequestQueryBox from './RequestQueryBox.jsx';
 import HandleQueryTable from './HandleQueryTable.jsx';
@@ -22,6 +22,7 @@ class Query extends Component {
 		this.delVal = this.delVal.bind(this);
 		this.updateInfo = this.updateInfo.bind(this);
 		this.saveQuery = this.saveQuery.bind(this);
+		this.updateGrabber = this.updateGrabber.bind(this);
 		this.state =  {
 			raw_data: "",
 			data: [],
@@ -40,7 +41,7 @@ class Query extends Component {
 				uuid = data.uuid;
 				return hydrate_query(uuid, 'queries');
 			});
-			
+
 			var complete = $.when(get_details).then(function(ret_val){
 				return ret_val;
 			});
@@ -66,9 +67,7 @@ class Query extends Component {
 			}.bind(this));
 
 		};
-
 	}
-
 	updateRequestQuery(data){
 		this.setState({
 			request_query:data
@@ -119,32 +118,70 @@ class Query extends Component {
 			alert(data.message)
 		})
 	}
+	updateGrabber(e){
+		console.log(e.target.value);
 
+	}
 	render(){
 		return (
 			<Grid className="queryBox">
 				<PageHeader>XPathRow Query Constructor <small>{this.state.name}</small></PageHeader>
 				<hr/>
 				Query Description: {this.state.description}
-					<RequestQueryBox
-						request_query={this.state.request_query}
-						raw_data = {this.state.raw_data}
-						onURLSubmit = {this.updateRequestQuery}
-					/>
-					<HandleQueryTable
-						values={this.state.handle_query}
-						addNewCell={this.addNewCell}
-						updateVal={this.updateHandleQueryVal}
-						performHandleQuery={this.submitHandleQuery}
-						output_data={this.state.data}
-						delVal={this.delVal}
-					/>
-					<SaveQueryTable
-						updateInfo={this.updateInfo}
-						saveQuery={this.saveQuery}
-						name={this.state.name}
-						description= {this.state.description}
-					/>
+				<Tabs defaultActiveKey={1} id="QueryTabs">
+
+					<Tab eventKey={1} title="Setup">
+						<ControlLabel>Request Type</ControlLabel>
+						<FormControl 
+							componentClass="select"
+							onChange={this.updateGrabber}
+							>
+							<option value="request">request</option>
+							<option value="dummy">dummy</option>
+						</FormControl>
+						<hr/>
+						<ControlLabel>Handler Type</ControlLabel>
+						<FormControl componentClass="select" placeholer="How to query the data...">
+							<option value="XPATHROW">XPATHROW</option>
+							<option value="JMESPATH">JMESPATH</option>
+						</FormControl>
+						<hr/>
+						<ControlLabel>Data Format</ControlLabel>
+						<ButtonGroup onChange={this.resFormat}>
+						      <Radio inline>
+						        Row
+						      </Radio >
+						      <Radio inline >
+						        Table
+						      </Radio>
+						</ButtonGroup>
+					</Tab>
+					<Tab eventKey={2} title="Request">
+						<RequestQueryBox
+							request_query={this.state.request_query}
+							raw_data = {this.state.raw_data}
+							onURLSubmit = {this.updateRequestQuery}
+						/>
+					</Tab>
+					<Tab eventKey={3} title="Handler">
+						<HandleQueryTable
+							values={this.state.handle_query}
+							addNewCell={this.addNewCell}
+							updateVal={this.updateHandleQueryVal}
+							performHandleQuery={this.submitHandleQuery}
+							output_data={this.state.data}
+							delVal={this.delVal}
+						/>
+					</Tab>
+					<Tab eventKey={4} title="Information">
+						<SaveQueryTable
+							updateInfo={this.updateInfo}
+							saveQuery={this.saveQuery}
+							name={this.state.name}
+							description= {this.state.description}
+						/>
+					</Tab>
+				</Tabs>
 			</Grid>
 		);
 	}

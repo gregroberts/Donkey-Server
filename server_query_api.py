@@ -48,6 +48,20 @@ class QueryView(FlaskView):
 				mimetype = 'application/json'
 			)
 
+	@route('/set_handler/<uuid>', methods=['POST'])
+	def set_handler(self, uuid):
+		details = request.json
+		q = ServerQuery(uuid = uuid)
+		q.handler = details['handler']	
+		q.save()
+
+	@route('/set_grabber/<uuid>', methods=['POST'])
+	def set_grabber(self, uuid):
+		details = request.json
+		q = ServerQuery(uuid = uuid)
+		q.grabber = details['grabber']	
+		q.save()
+
 	@route('/save/<uuid>', methods=['POST'])
 	def save(self, uuid):
 		details = request.json
@@ -141,7 +155,6 @@ class QueryView(FlaskView):
 		)
 
 	def list(self):
-		#return a list of everything in queries:*
 		results = list_queries()
 		res = {
 			'message':'query list',

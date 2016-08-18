@@ -67,7 +67,7 @@
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _list = __webpack_require__(/*! ./list.jsx */ 500);
+	var _list = __webpack_require__(/*! ./list.jsx */ 498);
 	
 	var _list2 = _interopRequireDefault(_list);
 	
@@ -47465,15 +47465,15 @@
 	
 	var _HandleQueryTable2 = _interopRequireDefault(_HandleQueryTable);
 	
-	var _SaveQueryTable = __webpack_require__(/*! ./SaveQueryTable.jsx */ 497);
+	var _SaveQueryTable = __webpack_require__(/*! ./SaveQueryTable.jsx */ 495);
 	
 	var _SaveQueryTable2 = _interopRequireDefault(_SaveQueryTable);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 498);
+	var _jquery = __webpack_require__(/*! jquery */ 496);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 499);
+	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 497);
 	
 	var _api_functions2 = _interopRequireDefault(_api_functions);
 	
@@ -47505,6 +47505,7 @@
 			_this.delVal = _this.delVal.bind(_this);
 			_this.updateInfo = _this.updateInfo.bind(_this);
 			_this.saveQuery = _this.saveQuery.bind(_this);
+			_this.updateGrabber = _this.updateGrabber.bind(_this);
 			_this.state = {
 				raw_data: "",
 				data: [],
@@ -47613,6 +47614,11 @@
 				});
 			}
 		}, {
+			key: 'updateGrabber',
+			value: function updateGrabber(e) {
+				console.log(e.target.value);
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -47631,25 +47637,107 @@
 					_react2.default.createElement('hr', null),
 					'Query Description: ',
 					this.state.description,
-					_react2.default.createElement(_RequestQueryBox2.default, {
-						request_query: this.state.request_query,
-						raw_data: this.state.raw_data,
-						onURLSubmit: this.updateRequestQuery
-					}),
-					_react2.default.createElement(_HandleQueryTable2.default, {
-						values: this.state.handle_query,
-						addNewCell: this.addNewCell,
-						updateVal: this.updateHandleQueryVal,
-						performHandleQuery: this.submitHandleQuery,
-						output_data: this.state.data,
-						delVal: this.delVal
-					}),
-					_react2.default.createElement(_SaveQueryTable2.default, {
-						updateInfo: this.updateInfo,
-						saveQuery: this.saveQuery,
-						name: this.state.name,
-						description: this.state.description
-					})
+					_react2.default.createElement(
+						_reactBootstrap.Tabs,
+						{ defaultActiveKey: 1, id: 'QueryTabs' },
+						_react2.default.createElement(
+							_reactBootstrap.Tab,
+							{ eventKey: 1, title: 'Setup' },
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Request Type'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.FormControl,
+								{
+									componentClass: 'select',
+									onChange: this.updateGrabber
+								},
+								_react2.default.createElement(
+									'option',
+									{ value: 'request' },
+									'request'
+								),
+								_react2.default.createElement(
+									'option',
+									{ value: 'dummy' },
+									'dummy'
+								)
+							),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Handler Type'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.FormControl,
+								{ componentClass: 'select', placeholer: 'How to query the data...' },
+								_react2.default.createElement(
+									'option',
+									{ value: 'XPATHROW' },
+									'XPATHROW'
+								),
+								_react2.default.createElement(
+									'option',
+									{ value: 'JMESPATH' },
+									'JMESPATH'
+								)
+							),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Data Format'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.ButtonGroup,
+								{ onChange: this.resFormat },
+								_react2.default.createElement(
+									_reactBootstrap.Radio,
+									{ inline: true },
+									'Row'
+								),
+								_react2.default.createElement(
+									_reactBootstrap.Radio,
+									{ inline: true },
+									'Table'
+								)
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.Tab,
+							{ eventKey: 2, title: 'Request' },
+							_react2.default.createElement(_RequestQueryBox2.default, {
+								request_query: this.state.request_query,
+								raw_data: this.state.raw_data,
+								onURLSubmit: this.updateRequestQuery
+							})
+						),
+						_react2.default.createElement(
+							_reactBootstrap.Tab,
+							{ eventKey: 3, title: 'Handler' },
+							_react2.default.createElement(_HandleQueryTable2.default, {
+								values: this.state.handle_query,
+								addNewCell: this.addNewCell,
+								updateVal: this.updateHandleQueryVal,
+								performHandleQuery: this.submitHandleQuery,
+								output_data: this.state.data,
+								delVal: this.delVal
+							})
+						),
+						_react2.default.createElement(
+							_reactBootstrap.Tab,
+							{ eventKey: 4, title: 'Information' },
+							_react2.default.createElement(_SaveQueryTable2.default, {
+								updateInfo: this.updateInfo,
+								saveQuery: this.saveQuery,
+								name: this.state.name,
+								description: this.state.description
+							})
+						)
+					)
 				);
 			}
 		}]);
@@ -47758,99 +47846,82 @@
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this2 = this;
-	
 				var filt = this.state.filtered;
 				return _react2.default.createElement(
-					_reactBootstrap.Row,
+					'div',
 					null,
 					_react2.default.createElement(
-						_reactBootstrap.Button,
-						{ onClick: function onClick() {
-								return _this2.setState({ open: !_this2.state.open });
-							}, bsSize: 'small' },
-						'Collapse Request Details'
-					),
-					_react2.default.createElement(
-						_reactBootstrap.Panel,
-						{ header: 'Request Details', collapsible: true, expanded: this.state.open },
+						_reactBootstrap.Row,
+						null,
 						_react2.default.createElement(
-							_reactBootstrap.Row,
-							null,
+							_reactBootstrap.Panel,
+							{ header: 'Request Input' },
 							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ md: 6 },
+								_reactBootstrap.FormGroup,
+								{ className: 'requestQueryBox' },
 								_react2.default.createElement(
-									_reactBootstrap.Panel,
-									{ header: 'Request Input' },
+									_reactBootstrap.ControlLabel,
+									null,
+									'URL:'
+								),
+								_react2.default.createElement(
+									_reactBootstrap.InputGroup,
+									null,
+									_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'url', onChange: this.handleChange, value: this.state.url }),
 									_react2.default.createElement(
-										_reactBootstrap.FormGroup,
-										{ className: 'requestQueryBox' },
+										_reactBootstrap.InputGroup.Button,
+										null,
 										_react2.default.createElement(
-											_reactBootstrap.ControlLabel,
-											null,
-											'URL:'
-										),
-										_react2.default.createElement(
-											_reactBootstrap.InputGroup,
-											null,
-											_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'url', onChange: this.handleChange, value: this.state.url }),
-											_react2.default.createElement(
-												_reactBootstrap.InputGroup.Button,
-												null,
-												_react2.default.createElement(
-													_reactBootstrap.Button,
-													{ onClick: this.handleSubmit },
-													'Update Details'
-												)
-											)
+											_reactBootstrap.Button,
+											{ onClick: this.handleSubmit },
+											'Update Details'
 										)
 									)
 								)
+							)
+						)
+					),
+					_react2.default.createElement(
+						_reactBootstrap.Row,
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.Panel,
+							{ header: 'Request Output' },
+							_react2.default.createElement(
+								_reactBootstrap.InputGroup,
+								null,
+								_react2.default.createElement(
+									_reactBootstrap.InputGroup.Addon,
+									null,
+									'Find Text'
+								),
+								_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', onChange: this.findValue })
 							),
 							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ md: 6 },
+								'span',
+								null,
+								this.state.filtered
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								null,
 								_react2.default.createElement(
-									_reactBootstrap.Panel,
-									{ header: 'Request Output' },
-									_react2.default.createElement(
-										_reactBootstrap.InputGroup,
-										null,
-										_react2.default.createElement(
-											_reactBootstrap.InputGroup.Addon,
-											null,
-											'Find Text'
-										),
-										_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', onChange: this.findValue })
-									),
-									_react2.default.createElement(
-										'span',
-										null,
-										this.state.filtered
-									),
-									_react2.default.createElement(
-										_reactBootstrap.Table,
-										null,
-										_react2.default.createElement(
-											'tbody',
-											null,
-											filt.map(function (data, index) {
-												return _react2.default.createElement(
-													'tr',
-													{ key: index },
-													_react2.default.createElement(
-														'td',
-														null,
-														data
-													)
-												);
-											}.bind(this))
-										)
-									),
-									_react2.default.createElement('textarea', { value: this.state.raw_data })
+									'tbody',
+									null,
+									filt.map(function (data, index) {
+										return _react2.default.createElement(
+											'tr',
+											{ key: index },
+											_react2.default.createElement(
+												'td',
+												null,
+												data
+											)
+										);
+									}.bind(this))
 								)
-							)
+							),
+							_react2.default.createElement('textarea', { value: this.state.raw_data })
 						)
 					)
 				);
@@ -47885,11 +47956,11 @@
 	
 	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
 	
-	var _InputTableCell = __webpack_require__(/*! ./InputTableCell.jsx */ 495);
+	var _InputTableCell = __webpack_require__(/*! ./InputTableCell.jsx */ 499);
 	
 	var _InputTableCell2 = _interopRequireDefault(_InputTableCell);
 	
-	var _OutPutBits = __webpack_require__(/*! ./OutPutBits.jsx */ 496);
+	var _OutPutBits = __webpack_require__(/*! ./OutPutBits.jsx */ 500);
 	
 	var _OutPutBits2 = _interopRequireDefault(_OutPutBits);
 	
@@ -47978,7 +48049,7 @@
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this2 = this;
+				var _this3 = this;
 	
 				var keys = Object.keys(this.props.values || {});
 				var values = this.props.values;
@@ -47995,87 +48066,178 @@
 					var out_values = [[]];
 				};
 				return _react2.default.createElement(
-					_reactBootstrap.Row,
+					'div',
 					null,
 					_react2.default.createElement(
-						_reactBootstrap.Button,
-						{ onClick: function onClick() {
-								return _this2.setState({ open: !_this2.state.open });
-							}, bsSize: 'small' },
-						'Collapse Query Details'
-					),
-					_react2.default.createElement(
-						_reactBootstrap.Panel,
-						{ header: 'Query Details', collapsible: true, expanded: this.state.open },
+						_reactBootstrap.Row,
+						null,
 						_react2.default.createElement(
-							_reactBootstrap.Col,
-							{ md: 6 },
+							_reactBootstrap.Panel,
+							{ header: 'Query Input' },
 							_react2.default.createElement(
-								_reactBootstrap.Panel,
-								{ header: 'Query Input' },
+								_reactBootstrap.ControlLabel,
+								null,
+								'Response Format: '
+							),
+							_react2.default.createElement(
+								_reactBootstrap.ButtonGroup,
+								{ onChange: this.resFormat },
 								_react2.default.createElement(
-									_reactBootstrap.ControlLabel,
-									null,
-									'Response Format: '
+									_reactBootstrap.Radio,
+									{ inline: true, checked: this.state.resFormat === 'Row' },
+									'Row'
 								),
 								_react2.default.createElement(
-									_reactBootstrap.ButtonGroup,
-									{ onChange: this.resFormat },
+									_reactBootstrap.Radio,
+									{ inline: true, checked: this.state.resFormat === 'Table' },
+									'Table'
+								)
+							),
+							_react2.default.createElement(
+								_reactBootstrap.InputGroup,
+								{ className: 'hide-' + (this.state.resFormat == 'Row') },
+								_react2.default.createElement(
+									_reactBootstrap.InputGroup.Addon,
+									null,
+									'Base Query'
+								),
+								_react2.default.createElement(_reactBootstrap.FormControl, { onChange: this.changeBase, type: 'text', value: this.state._base })
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								{ striped: true, bordered: true, condensed: true, hover: true },
+								_react2.default.createElement(
+									'thead',
+									null,
 									_react2.default.createElement(
-										_reactBootstrap.Radio,
-										{ inline: true, checked: this.state.resFormat === 'Row' },
-										'Row'
-									),
-									_react2.default.createElement(
-										_reactBootstrap.Radio,
-										{ inline: true, checked: this.state.resFormat === 'Table' },
-										'Table'
+										'tr',
+										null,
+										_react2.default.createElement(
+											'th',
+											null,
+											'Variable Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Xpath Query'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Del'
+										)
 									)
 								),
 								_react2.default.createElement(
-									_reactBootstrap.InputGroup,
-									{ className: 'hide-' + (this.state.resFormat == 'Row') },
-									_react2.default.createElement(
-										_reactBootstrap.InputGroup.Addon,
-										null,
-										'Base Query'
-									),
-									_react2.default.createElement(_reactBootstrap.FormControl, { onChange: this.changeBase, type: 'text', value: this.state._base })
+									'tbody',
+									null,
+									keys.map(function (key, index) {
+										var _this2 = this;
+	
+										if (key !== '_base') {
+											var val = values[key];
+											var ind = index;
+											return _react2.default.createElement(
+												'tr',
+												{ key: index },
+												_react2.default.createElement(
+													'th',
+													null,
+													key
+												),
+												_react2.default.createElement(_InputTableCell2.default, {
+													value: val,
+													keyname: key,
+													updateVal: this.updateVal
+												}),
+												_react2.default.createElement(
+													'td',
+													null,
+													_react2.default.createElement(
+														_reactBootstrap.Button,
+														{ bsSize: 'small', onClick: function onClick() {
+																return _this2.props.delVal({ key: key });
+															} },
+														'x'
+													)
+												)
+											);
+										};
+									}.bind(this))
+								)
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Button,
+								{ onClick: this.makeNewCell },
+								' Add New value'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Button,
+								{ onClick: this.props.performHandleQuery },
+								'Perform Handle Query'
+							)
+						)
+					),
+					_react2.default.createElement(
+						_reactBootstrap.Row,
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.Panel,
+							{ header: 'Query Output' },
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								{ striped: true, bordered: true, condensed: true, hover: true },
+								_react2.default.createElement(
+									'thead',
+									null,
+									function () {
+										if (_this3.state.resFormat == 'Row') {
+											return _react2.default.createElement(
+												'tr',
+												null,
+												_react2.default.createElement(
+													'th',
+													null,
+													'Variable Name'
+												),
+												_react2.default.createElement(
+													'th',
+													null,
+													'Xpath Result'
+												)
+											);
+										} else {
+											return _react2.default.createElement(
+												'tr',
+												null,
+												keys.map(function (key, index) {
+													if (key != '_base') {
+														return _react2.default.createElement(
+															'th',
+															{ key: index },
+															key
+														);
+													};
+												})
+											);
+										};
+									}()
 								),
 								_react2.default.createElement(
-									_reactBootstrap.Table,
-									{ striped: true, bordered: true, condensed: true, hover: true },
-									_react2.default.createElement(
-										'thead',
-										null,
-										_react2.default.createElement(
-											'tr',
-											null,
-											_react2.default.createElement(
-												'th',
-												null,
-												'Variable Name'
-											),
-											_react2.default.createElement(
-												'th',
-												null,
-												'Xpath Query'
-											),
-											_react2.default.createElement(
-												'th',
-												null,
-												'Del'
-											)
-										)
-									),
-									_react2.default.createElement(
-										'tbody',
-										null,
-										keys.map(function (key, index) {
-											var _this3 = this;
-	
-											if (key !== '_base') {
-												var val = values[key];
+									'tbody',
+									null,
+									function () {
+										if (_this3.state.resFormat == 'Table') {
+											return Object.keys(out_values).map(function (key, index) {
+												var ind = index;
+												return _react2.default.createElement(OutputTableRow, {
+													value: out_values[key],
+													key: index });
+											}.bind(_this3));
+										} else {
+											return out_keys.map(function (key, index) {
+												var val = out_values[key];
 												var ind = index;
 												return _react2.default.createElement(
 													'tr',
@@ -48085,115 +48247,13 @@
 														null,
 														key
 													),
-													_react2.default.createElement(_InputTableCell2.default, {
-														value: val,
-														keyname: key,
-														updateVal: this.updateVal
-													}),
-													_react2.default.createElement(
-														'td',
-														null,
-														_react2.default.createElement(
-															_reactBootstrap.Button,
-															{ bsSize: 'small', onClick: function onClick() {
-																	return _this3.props.delVal({ key: key });
-																} },
-															'x'
-														)
-													)
-												);
-											};
-										}.bind(this))
-									)
-								),
-								_react2.default.createElement(
-									_reactBootstrap.Button,
-									{ onClick: this.makeNewCell },
-									' Add New value'
-								),
-								_react2.default.createElement(
-									_reactBootstrap.Button,
-									{ onClick: this.props.performHandleQuery },
-									'Perform Handle Query'
-								)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.Col,
-							{ md: 6 },
-							_react2.default.createElement(
-								_reactBootstrap.Panel,
-								{ header: 'Query Output' },
-								_react2.default.createElement(
-									_reactBootstrap.Table,
-									{ striped: true, bordered: true, condensed: true, hover: true },
-									_react2.default.createElement(
-										'thead',
-										null,
-										function () {
-											if (_this2.state.resFormat == 'Row') {
-												return _react2.default.createElement(
-													'tr',
-													null,
-													_react2.default.createElement(
-														'th',
-														null,
-														'Variable Name'
-													),
-													_react2.default.createElement(
-														'th',
-														null,
-														'Xpath Result'
-													)
-												);
-											} else {
-												return _react2.default.createElement(
-													'tr',
-													null,
-													keys.map(function (key, index) {
-														if (key != '_base') {
-															return _react2.default.createElement(
-																'th',
-																{ key: index },
-																key
-															);
-														};
+													_react2.default.createElement(OutputTableCell, {
+														value: val
 													})
 												);
-											};
-										}()
-									),
-									_react2.default.createElement(
-										'tbody',
-										null,
-										function () {
-											if (_this2.state.resFormat == 'Table') {
-												return Object.keys(out_values).map(function (key, index) {
-													var ind = index;
-													return _react2.default.createElement(OutputTableRow, {
-														value: out_values[key],
-														key: index });
-												}.bind(_this2));
-											} else {
-												return out_keys.map(function (key, index) {
-													var val = out_values[key];
-													var ind = index;
-													return _react2.default.createElement(
-														'tr',
-														{ key: index },
-														_react2.default.createElement(
-															'th',
-															null,
-															key
-														),
-														_react2.default.createElement(OutputTableCell, {
-															value: val
-														})
-													);
-												}.bind(_this2));
-											};
-										}()
-									)
+											}.bind(_this3));
+										};
+									}()
 								)
 							)
 						)
@@ -48211,189 +48271,6 @@
 
 /***/ },
 /* 495 */
-/*!********************************!*\
-  !*** ./app/InputTableCell.jsx ***!
-  \********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var InputTableCell = function (_Component) {
-		_inherits(InputTableCell, _Component);
-	
-		function InputTableCell(props) {
-			_classCallCheck(this, InputTableCell);
-	
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(InputTableCell).call(this, props));
-	
-			_this.changeVal = _this.changeVal.bind(_this);
-			_this.state = { val: '' };
-			return _this;
-		}
-	
-		_createClass(InputTableCell, [{
-			key: 'shouldComponentUpdate',
-			value: function shouldComponentUpdate(newProps) {
-				this.setState({ val: newProps.value }, function () {
-					this.setState({ val: newProps.value });
-					this.forceUpdate();
-				});
-				return true;
-			}
-		}, {
-			key: 'changeVal',
-			value: function changeVal(e) {
-				var value = e.target.value;
-				var key = this.props.keyname;
-				this.props.updateVal(key, value);
-				this.setState({ val: value });
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'td',
-					null,
-					_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', onChange: this.changeVal, value: this.state.val })
-				);
-			}
-		}]);
-	
-		return InputTableCell;
-	}(_react.Component);
-	
-	;
-	
-	exports.default = InputTableCell;
-
-/***/ },
-/* 496 */
-/*!****************************!*\
-  !*** ./app/OutPutBits.jsx ***!
-  \****************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var OutputTableRow = function (_Component) {
-		_inherits(OutputTableRow, _Component);
-	
-		function OutputTableRow(props) {
-			_classCallCheck(this, OutputTableRow);
-	
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(OutputTableRow).call(this, props));
-	
-			_this.state = { val: [] };
-			return _this;
-		}
-	
-		_createClass(OutputTableRow, [{
-			key: 'shouldComponentUpdate',
-			value: function shouldComponentUpdate(newProps) {
-				this.setState({ val: newProps.value }, function (d) {
-					this.forceUpdate();
-				}.bind(this));
-				return true;
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'tr',
-					null,
-					Object.keys(this.state.val).map(function (key, index) {
-						return _react2.default.createElement(OutputTableCell, { value: this.state.val[key], key: index });
-					}.bind(this))
-				);
-			}
-		}]);
-	
-		return OutputTableRow;
-	}(_react.Component);
-	
-	;
-	
-	var OutputTableCell = function (_Component2) {
-		_inherits(OutputTableCell, _Component2);
-	
-		function OutputTableCell(props) {
-			_classCallCheck(this, OutputTableCell);
-	
-			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(OutputTableCell).call(this, props));
-	
-			_this2.state = { value: '' };
-			return _this2;
-		}
-	
-		_createClass(OutputTableCell, [{
-			key: 'shouldComponentUpdate',
-			value: function shouldComponentUpdate(newProps) {
-				console.log('ROW', newProps);
-				this.setState(newProps, function (data) {
-					this.forceUpdate();
-				});
-				return true;
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'td',
-					null,
-					this.state.value
-				);
-			}
-		}]);
-	
-		return OutputTableCell;
-	}(_react.Component);
-	
-	;
-	
-	exports.default = { OutputTableCell: OutputTableCell, OutputTableRow: OutputTableRow };
-
-/***/ },
-/* 497 */
 /*!********************************!*\
   !*** ./app/SaveQueryTable.jsx ***!
   \********************************/
@@ -48467,42 +48344,29 @@
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this2 = this;
-	
 				return _react2.default.createElement(
 					_reactBootstrap.Row,
 					null,
 					_react2.default.createElement(
-						_reactBootstrap.Button,
-						{ onClick: function onClick() {
-								return _this2.setState({ open: !_this2.state.open });
-							}, bsSize: 'small' },
-						'Collapse Query Information'
+						_reactBootstrap.FormGroup,
+						{ className: 'SaveQueryTable' },
+						_react2.default.createElement(
+							_reactBootstrap.ControlLabel,
+							null,
+							'Name'
+						),
+						_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'name', onChange: this.updateName, value: this.state.name }),
+						_react2.default.createElement(
+							_reactBootstrap.ControlLabel,
+							null,
+							'Description'
+						),
+						_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'description', onChange: this.updateDesc, value: this.state.description })
 					),
 					_react2.default.createElement(
-						_reactBootstrap.Panel,
-						{ header: 'Query Information', collapsible: true, expanded: this.state.open },
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ className: 'SaveQueryTable' },
-							_react2.default.createElement(
-								_reactBootstrap.ControlLabel,
-								null,
-								'Name'
-							),
-							_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'name', onChange: this.updateName, value: this.state.name }),
-							_react2.default.createElement(
-								_reactBootstrap.ControlLabel,
-								null,
-								'Description'
-							),
-							_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'description', onChange: this.updateDesc, value: this.state.description })
-						),
-						_react2.default.createElement(
-							_reactBootstrap.Button,
-							{ onClick: this.props.saveQuery, bsStyle: 'info' },
-							'Save'
-						)
+						_reactBootstrap.Button,
+						{ onClick: this.props.saveQuery, bsStyle: 'info' },
+						'Save'
 					)
 				);
 			}
@@ -48516,7 +48380,7 @@
 	exports.default = SaveQueryTable;
 
 /***/ },
-/* 498 */
+/* 496 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
@@ -58599,7 +58463,7 @@
 
 
 /***/ },
-/* 499 */
+/* 497 */
 /*!*******************************!*\
   !*** ./app/api_functions.jsx ***!
   \*******************************/
@@ -58611,7 +58475,7 @@
 		value: true
 	});
 	
-	var _jquery = __webpack_require__(/*! jquery */ 498);
+	var _jquery = __webpack_require__(/*! jquery */ 496);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
@@ -58654,7 +58518,7 @@
 	exports.default = { hit_api: hit_api, hydrate_query: hydrate_query };
 
 /***/ },
-/* 500 */
+/* 498 */
 /*!**********************!*\
   !*** ./app/list.jsx ***!
   \**********************/
@@ -58668,11 +58532,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _jquery = __webpack_require__(/*! jquery */ 498);
+	var _jquery = __webpack_require__(/*! jquery */ 496);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 499);
+	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 497);
 	
 	var _api_functions2 = _interopRequireDefault(_api_functions);
 	
@@ -58922,6 +58786,189 @@
 	;
 	
 	exports.default = List;
+
+/***/ },
+/* 499 */
+/*!********************************!*\
+  !*** ./app/InputTableCell.jsx ***!
+  \********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var InputTableCell = function (_Component) {
+		_inherits(InputTableCell, _Component);
+	
+		function InputTableCell(props) {
+			_classCallCheck(this, InputTableCell);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(InputTableCell).call(this, props));
+	
+			_this.changeVal = _this.changeVal.bind(_this);
+			_this.state = { val: '' };
+			return _this;
+		}
+	
+		_createClass(InputTableCell, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(newProps) {
+				this.setState({ val: newProps.value }, function () {
+					this.setState({ val: newProps.value });
+					this.forceUpdate();
+				});
+				return true;
+			}
+		}, {
+			key: 'changeVal',
+			value: function changeVal(e) {
+				var value = e.target.value;
+				var key = this.props.keyname;
+				this.props.updateVal(key, value);
+				this.setState({ val: value });
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'td',
+					null,
+					_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', onChange: this.changeVal, value: this.state.val })
+				);
+			}
+		}]);
+	
+		return InputTableCell;
+	}(_react.Component);
+	
+	;
+	
+	exports.default = InputTableCell;
+
+/***/ },
+/* 500 */
+/*!****************************!*\
+  !*** ./app/OutPutBits.jsx ***!
+  \****************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var OutputTableRow = function (_Component) {
+		_inherits(OutputTableRow, _Component);
+	
+		function OutputTableRow(props) {
+			_classCallCheck(this, OutputTableRow);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(OutputTableRow).call(this, props));
+	
+			_this.state = { val: [] };
+			return _this;
+		}
+	
+		_createClass(OutputTableRow, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(newProps) {
+				this.setState({ val: newProps.value }, function (d) {
+					this.forceUpdate();
+				}.bind(this));
+				return true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'tr',
+					null,
+					Object.keys(this.state.val).map(function (key, index) {
+						return _react2.default.createElement(OutputTableCell, { value: this.state.val[key], key: index });
+					}.bind(this))
+				);
+			}
+		}]);
+	
+		return OutputTableRow;
+	}(_react.Component);
+	
+	;
+	
+	var OutputTableCell = function (_Component2) {
+		_inherits(OutputTableCell, _Component2);
+	
+		function OutputTableCell(props) {
+			_classCallCheck(this, OutputTableCell);
+	
+			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(OutputTableCell).call(this, props));
+	
+			_this2.state = { value: '' };
+			return _this2;
+		}
+	
+		_createClass(OutputTableCell, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(newProps) {
+				console.log('ROW', newProps);
+				this.setState(newProps, function (data) {
+					this.forceUpdate();
+				});
+				return true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'td',
+					null,
+					this.state.value
+				);
+			}
+		}]);
+	
+		return OutputTableCell;
+	}(_react.Component);
+	
+	;
+	
+	exports.default = { OutputTableCell: OutputTableCell, OutputTableRow: OutputTableRow };
 
 /***/ }
 /******/ ]);

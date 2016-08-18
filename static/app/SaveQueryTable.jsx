@@ -38,18 +38,13 @@ class SaveQueryTable extends Component{
 	render(){
 		return(
 			<Row>
-				<Button onClick={ ()=> this.setState({ open: !this.state.open })} bsSize="small">
-							 Collapse Query Information
-				</Button>
-				<Panel header="Query Information"  collapsible expanded={this.state.open}>
-					<FormGroup className="SaveQueryTable" >
-						<ControlLabel>Name</ControlLabel>
-							<FormControl type="text" ref="name" onChange={this.updateName} value={this.state.name}/>
-						<ControlLabel>Description</ControlLabel>
-							<FormControl type="text" ref="description" onChange={this.updateDesc} value={this.state.description}/>
-					</FormGroup>
-					<Button onClick={this.props.saveQuery} bsStyle="info">Save</Button>
-				</Panel>
+				<FormGroup className="SaveQueryTable" >
+					<ControlLabel>Name</ControlLabel>
+						<FormControl type="text" ref="name" onChange={this.updateName} value={this.state.name}/>
+					<ControlLabel>Description</ControlLabel>
+						<FormControl type="text" ref="description" onChange={this.updateDesc} value={this.state.description}/>
+				</FormGroup>
+				<Button onClick={this.props.saveQuery} bsStyle="info">Save</Button>
 			</Row>
 		)
 	}
