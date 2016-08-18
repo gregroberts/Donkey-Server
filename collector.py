@@ -13,6 +13,7 @@ class Collector:
 	log_data = []
 	state = True
 	jobs = []
+	
 	def log(self, line, l_type = 'message'):
 		'''writes to the log'''
 		self.log_data.append([str(datetime.now()), line, l_type])
