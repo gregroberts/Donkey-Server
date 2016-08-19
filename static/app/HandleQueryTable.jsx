@@ -14,11 +14,9 @@ class HandleQueryTable extends Component{
 		super(props);
 		this.makeNewCell = this.makeNewCell.bind(this);
 		this.updateVal = this.updateVal.bind(this);
-		this.resFormat = this.resFormat.bind(this);
 		this.changeBase = this.	changeBase.bind(this);
 		this.state = {
 			cells:{},
-			open:true,
 			resFormat: 'Row',
 			_base:'',
 			output_data: []
@@ -31,12 +29,7 @@ class HandleQueryTable extends Component{
 			cells:newProps.values,
 			output_data: newProps.output_data,
 			_base: newProps.values._base,
-		}, function(){
-			this.forceUpdate();
-			if (this.state._base !='') {
-				this.setState({resFormat: 'Table'})
-				this.setState({_base:newProps.values._base})
-			};
+			resFormat: newProps.resFormat
 		});
 		return true;
 	}
@@ -55,20 +48,13 @@ class HandleQueryTable extends Component{
 		this.setState({cells: curr_keys});
 		this.props.updateVal(key, val);
 	}
-
-	resFormat(e){
-		var v = e.target.parentNode.innerText;
-		if (v=='Row') this.setState({_base:''});
-		this.setState({resFormat: e.target.parentNode.innerText});
-
-	}
 	changeBase(e){
 		this.setState({_base: e.target.value})
 		this.props.updateVal('_base', e.target.value)
 	}
 
 	render(){
-		var keys = Object.keys(this.props.values || {});
+		var keys = Object.keys(this.props.values || {}).sort();
 		var values = this.props.values;
 		if (this.props.output_data != undefined) {
 			if (Object.keys(this.props.output_data)[0]==0) {
@@ -83,114 +69,104 @@ class HandleQueryTable extends Component{
 			var out_values = [[]];
 		};
 		return(
-			<div>
-			<Row>
-				<Panel header="Query Input">
-					<ControlLabel>Response Format: </ControlLabel>
-					    <ButtonGroup onChange={this.resFormat}>
-						      <Radio inline checked={this.state.resFormat==='Row'} >
-						        Row
-						      </Radio >
-						      <Radio inline  checked={this.state.resFormat==='Table'}>
-						        Table
-						      </Radio>
-					    </ButtonGroup>
-					    <InputGroup className={'hide-'+(this.state.resFormat=='Row')} >
-					    	<InputGroup.Addon>Base Query</InputGroup.Addon>
-					    	<FormControl onChange={this.changeBase} type="text" value={this.state._base}/>
-					    </InputGroup>
-					<Table striped bordered condensed hover>
-						<thead>
-							<tr>
-								<th>Variable Name</th>
-								<th>Xpath Query</th>
-								<th>Del</th>
-							</tr>
-						</thead>
-						<tbody>
-						{
-
-							keys.map(function(key, index){
-								if (key !== '_base') {
-									var val = values[key];
-									var ind = index;
-									return <tr key={index}>
-										<th>{key}</th>
-											<InputTableCell
-												value={val}
-												keyname = {key}
-												updateVal={this.updateVal}
-											/>
-										<td><Button bsSize="small" onClick={() => this.props.delVal({key})} >x</Button></td>
-									</tr>
-								};
-
-							}.bind(this))
-						}
-						</tbody>
-					</Table>
-					<Button onClick={this.makeNewCell}> Add New value</Button>
-					<Button onClick={this.props.performHandleQuery}>Perform Handle Query</Button>
-				</Panel>
-			</Row>
-			<Row>
-				<Panel header="Query Output">
-				 <Table striped bordered condensed hover>
+		<div>
+		<Row>
+			<Panel header="Query Input">
+			    <InputGroup className={'hide-'+(this.state.resFormat=='Row')} >
+			    	<InputGroup.Addon>Base Query</InputGroup.Addon>
+			    	<FormControl onChange={this.changeBase} type="text" value={this.state._base}/>
+			    </InputGroup>
+				<Table striped bordered condensed hover>
 					<thead>
-					{
-						(() => {
-						if (this.state.resFormat=='Row') {
-								return <tr>
-									<th>Variable Name</th>
-									<th>Xpath Result</th>
-								</tr>
-							} else{
-								return <tr>
-									{
-										keys.map(function(key, index){
-											if (key!='_base') {
-												return <th key={index}>{key}</th>
-											};
-
-										})
-									}
-								</tr>
-							};
-						})()
-					}
+						<tr>
+							<th>Variable Name</th>
+							<th>Xpath Query</th>
+							<th>Del</th>
+						</tr>
 					</thead>
 					<tbody>
 					{
-						(() =>{
-							if (this.state.resFormat=='Table') {
-								return (
-									Object.keys(out_values).map(function(key, index){
-										var ind = index;
-										return <OutputTableRow
-												value={out_values[key]}
-												key={index}/>
-									}.bind(this))
-								)
-							} else{
-								return (
-									out_keys.map(function(key, index){
-										var val = out_values[key];
-										var ind = index;
-										return  <tr key={index}><th>{key}</th>
-											<OutputTableCell
-												value={val}
-											/>
-											</tr>
-									}.bind(this))
-								)
+
+						keys.map(function(key, index){
+							if (key !== '_base') {
+								var val = values[key];
+								var ind = index;
+								return <tr key={index}>
+									<th>{key}</th>
+										<InputTableCell
+											value={val}
+											keyname = {key}
+											updateVal={this.updateVal}
+										/>
+									<td><Button bsSize="small" onClick={() => this.props.delVal({key})} >x</Button></td>
+								</tr>
 							};
-						})()
+
+						}.bind(this))
 					}
 					</tbody>
-				 </Table>
-				</Panel>
-			</Row>
-			</div>
+				</Table>
+				<Button onClick={this.makeNewCell}> Add New value</Button>
+				<Button onClick={this.props.performHandleQuery}>Perform Handle Query</Button>
+			</Panel>
+		</Row>
+		<Row>
+			<Panel header="Query Output">
+			 <Table striped bordered condensed hover>
+				<thead>
+				{
+				(() => {
+				if (this.state.resFormat=='Row') {
+					return <tr>
+						<th>Variable Name</th>
+						<th>Xpath Result</th>
+					</tr>
+				} else{
+					return <tr>
+						{
+						keys.map(function(key, index){
+							if (key!='_base') {
+								return <th key={index}>{key}</th>
+							};
+						})
+						}
+					</tr>
+				};
+				})()
+				}
+				</thead>
+				<tbody>
+				{
+				(() =>{
+				if (this.state.resFormat=='Table') {
+					return (
+						Object.keys(out_values).map(function(key, index){
+							var ind = index;
+							return <OutputTableRow
+									value={out_values[key]}
+									key={index}/>
+						}.bind(this))
+					)
+				} else{
+					return (
+						out_keys.map(function(key, index){
+							var val = out_values[key];
+							var ind = index;
+							return  <tr key={index}><th>{key}</th>
+								<OutputTableCell
+									value={val}
+								/>
+								</tr>
+						}.bind(this))
+					)
+				};
+				})()
+				}
+				</tbody>
+			 </Table>
+			</Panel>
+		</Row>
+		</div>
 		);
 	}
 };

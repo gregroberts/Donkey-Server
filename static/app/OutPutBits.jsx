@@ -8,17 +8,20 @@ import {Row, Button, Panel, Col,
 class OutputTableRow extends Component {
 	constructor(props) {
 		super(props);
+		this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
 		this.state =  {val:[]};
 	}
 	shouldComponentUpdate(newProps) {
 		this.setState({val:newProps.value}, function(d){
 			this.forceUpdate();
+			console.log(newProps)
 		}.bind(this));
 		return true;
 	}
+	//componentDid
 	render(){
 		return <tr>{
-				Object.keys(this.state.val).map(function (key, index) {
+				Object.keys(this.state.val).sort().map(function (key, index) {
 					return <OutputTableCell value={this.state.val[key]} key={index} />;
 				}.bind(this))
 			}</tr>;
@@ -28,10 +31,16 @@ class OutputTableRow extends Component {
  class OutputTableCell extends Component {
 	constructor(props) {
 		super(props);
+		this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
+		this.componentDidMount = this.componentDidMount.bind(this);
 		this.state =  {value:''};
 	} 	
+	componentDidMount(p) {
+		this.setState(this.props, function(data){
+			this.forceUpdate();
+		});
+	}
 	shouldComponentUpdate(newProps) {
-		console.log('ROW',newProps)
 		this.setState(newProps, function(data){
 			this.forceUpdate();
 		});

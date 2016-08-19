@@ -52,21 +52,23 @@ class QueryView(FlaskView):
 	def set_handler(self, uuid):
 		details = request.json
 		q = ServerQuery(uuid = uuid)
-		q.handler = details['handler']	
+		q.handler = details['handler']
 		q.save()
 
 	@route('/set_grabber/<uuid>', methods=['POST'])
 	def set_grabber(self, uuid):
 		details = request.json
 		q = ServerQuery(uuid = uuid)
-		q.grabber = details['grabber']	
+		q.grabber = details['grabber']
 		q.save()
 
 	@route('/save/<uuid>', methods=['POST'])
 	def save(self, uuid):
 		details = request.json
+		details.update({'where':'library'})
+		print details
 		q = ServerQuery(uuid = uuid)
-		q.save(details['name'], details['description'], where = 'library')
+		q.save(**details)
 		res = {
 			'uuid':uuid,
 			'message':'Successfully saved Query'
@@ -142,7 +144,7 @@ class QueryView(FlaskView):
 	@route('/run/<uuid>', methods=['POST'])
 	def run(self, uuid):
 		query = request.json or {}
-		q = ServerQuery(uuid = uuid)
+		q = ServerQuery(uuid = uuid, from_where = 'library')
 		res = {
 			'message': 'data',
 			'data':q.run(**query),

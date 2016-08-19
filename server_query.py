@@ -63,24 +63,31 @@ class ServerQuery(Query):
 		return res
 
 
-	def save(self, name = None, description =None, where = 'queries'):
+	def save(self, name = None, description =None,
+		handler=None, grabber= None, parameters = None,
+		handle_query = None, request_query = None, 
+		uuid = None, freshness = None, where = 'queries'):
+		if parameters != None:
+			self.request_query = request_query or self.request_query
+			parameters = self.set_params(**parameters)
+			request_query = self.request_query
 		req_q = {
-			'request':copy(self.request_query),
-			'handle':copy(self.handle_query)
+			'request':copy(request_query or self.request_query),
+			'handle':copy(handle_query or self.handle_query)
 		}
 		req_q['request'].update({
-			'@freshness':self.freshness,
-			'@grabber':self.grabber,
+			'@freshness':freshness or self.freshness,
+			'@grabber':grabber or self.grabber,
 		})
 		req_q['handle'].update({
-			'@handler':self.handler
+			'@handler':handler or self.handler
 		})
 		val = {
 			'name':name or self.name,
 			'description':description or self.description,
 			'saved_at':datetime.now().strftime('%Y-%m-%d %H:%M'),
 			'query':req_q,
-			'uuid':self.uuid,
+			'uuid':uuid or self.uuid,
 			'parameters':self.parameters,
 			'raw_data': self.raw_data,
 		}

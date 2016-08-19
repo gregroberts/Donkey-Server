@@ -11,7 +11,6 @@ class RequestQueryBox extends Component{
 		this.state =  {
 			url: '',
 			raw_data:'',
-			open: true,
 			filtered:[],
 			query:'',
 		}
@@ -23,15 +22,13 @@ class RequestQueryBox extends Component{
 	}
 	handleChange(e) {
 		this.setState({url: e.target.value});
+		this.props.onURLSubmit({url:e.target.value}, false)
 	}
 	handleSubmit(e){
-		var new_raw = this.props.onURLSubmit({url: this.state.url});
+		var new_raw = this.props.onURLSubmit({url: this.state.url}, true);
 		new_raw.done(function(data){
 			this.setState({raw_data: data});
 		}.bind(this));
-
-
-
 	}
 	findValue(e){
 		var escape = function(s) {
@@ -90,7 +87,8 @@ class RequestQueryBox extends Component{
 							}
 							</tbody>
 						</Table>
-						<textarea value={this.state.raw_data}/>
+
+						<div><textarea value={this.state.raw_data} /></div>
 					</Panel>
 				</Row>
 			</div>
