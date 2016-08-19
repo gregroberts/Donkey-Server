@@ -59,7 +59,6 @@ class Collector:
 				'job_params':params
 			})
 
-
 	def run_jobs(self):
 		self.log('running jobs!')
 		for index, job in enumerate(self.parameter_set):

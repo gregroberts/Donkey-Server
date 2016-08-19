@@ -54,32 +54,36 @@ def finit(_id):
 	conn.commit()
 	conn.close()
 
+def schedule_thing(item)
+	birth(item['id'])
+	x =  Collection(
+		item['CollectionName'], 
+		item['QueryName'],
+		item['QueueName'],
+		item['TableName']	
+	)
+	if item['InputType'] == 'sql':
+		jobs = x.schedule_from_sql(item['Input'])
+	elif item['InputType'] == 'json':
+		inp = json.loads(item['Input'])
+		jobs = x.schedule_from_json(inp)
+	else:
+		'WHAT?'
+		jobs=[-1]
+	last = jobs[-1]
+	redis_conn = Redis(
+		host=server_config.REDIS_HOST,
+		port=server_config.REDIS_PORT,
+	)
+	queue = Queue('collections',connection = redis_conn)
+	queue.enqueue(finit, kwargs={'_id':item['id']}, depends_on=last)
+
 def schedule_due_things():
 	things = get_due_items()
 	print things
 	for item in things:
-		birth(item['id'])
-		x =  Collection(
-			item['CollectionName'], 
-			item['QueryName'],
-			item['QueueName'],
-			item['TableName']	
-		)
-		if item['InputType'] == 'sql':
-			jobs = x.schedule_from_sql(item['Input'])
-		elif item['InputType'] == 'json':
-			inp = json.loads(item['Input'])
-			jobs = x.schedule_from_json(inp)
-		else:
-			'WHAT?'
-			jobs=[-1]
-		last = jobs[-1]
-		redis_conn = Redis(
-			host=server_config.REDIS_HOST,
-			port=server_config.REDIS_PORT,
-		)
-		queue = Queue('collections',connection = redis_conn)
-		queue.enqueue(finit, kwargs={'_id':item['id']}, depends_on=last)
+		schedule_thing(item)
+
 
 
 	
