@@ -53,15 +53,14 @@ class RunQuery extends Component{
 		this.setState({outParams: curr_keys});
 	}
 	runQuery(){
-		console.log(this.state.outParams);
 		$.when(hit_api('/query/run/'+this.state.name, this.state.outParams, 'POST')).then(function(ret_val){
-			console.log(ret_val);
 			if(this.state.resFormat=='Row'){
-				this.setState({result:[ret_val.data]});
+				var r=[ret_val.data]
 			} else{
-				this.setState({result:ret_val.data});
+				var r=ret_val.data
+				
 			}
-			
+			this.setState({result:r}, this.forceUpdate);
 		}.bind(this))
 	}
 	render() {
@@ -69,7 +68,6 @@ class RunQuery extends Component{
 		var vals = this.state.outParams;
 		var resKeys = Object.keys(this.state.result[0]);
 		var resVals = this.state.result;
-		console.log(keys,vals,resKeys, resVals);
 		return(
 			<Grid className="RunQuery">
 			<Row>

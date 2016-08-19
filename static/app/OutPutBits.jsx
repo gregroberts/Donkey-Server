@@ -14,7 +14,6 @@ class OutputTableRow extends Component {
 	shouldComponentUpdate(newProps) {
 		this.setState({val:newProps.value}, function(d){
 			this.forceUpdate();
-			console.log(newProps)
 		}.bind(this));
 		return true;
 	}

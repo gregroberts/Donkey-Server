@@ -48435,7 +48435,6 @@
 			value: function shouldComponentUpdate(newProps) {
 				this.setState({ val: newProps.value }, function (d) {
 					this.forceUpdate();
-					console.log(newProps);
 				}.bind(this));
 				return true;
 			}
@@ -59256,14 +59255,13 @@
 		}, {
 			key: 'runQuery',
 			value: function runQuery() {
-				console.log(this.state.outParams);
 				$.when(hit_api('/query/run/' + this.state.name, this.state.outParams, 'POST')).then(function (ret_val) {
-					console.log(ret_val);
 					if (this.state.resFormat == 'Row') {
-						this.setState({ result: [ret_val.data] });
+						var r = [ret_val.data];
 					} else {
-						this.setState({ result: ret_val.data });
+						var r = ret_val.data;
 					}
+					this.setState({ result: r }, this.forceUpdate);
 				}.bind(this));
 			}
 		}, {
@@ -59273,7 +59271,6 @@
 				var vals = this.state.outParams;
 				var resKeys = Object.keys(this.state.result[0]);
 				var resVals = this.state.result;
-				console.log(keys, vals, resKeys, resVals);
 				return _react2.default.createElement(
 					_reactBootstrap.Grid,
 					{ className: 'RunQuery' },
