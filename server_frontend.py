@@ -2,6 +2,7 @@ from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 import server_config
 from server_query_api import QueryView
+from collector_api import CollectorView
 from json import dumps
 import rq_dashboard
 
@@ -10,6 +11,8 @@ import rq_dashboard
 application = Flask(__name__)
  
 QueryView.register(application)
+CollectorView.register(application)
+
 
 #DonkeyView.register(application)
 @application.errorhandler(500)

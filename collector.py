@@ -83,6 +83,8 @@ class Collector:
 			self.set_parameters_from_sql(_input)
 		else:
 			self.log('Input type %s not recognised' % input_type, 'error')
+		self.run_jobs()
+		return map(lambda x: x.id, self.jobs)
 
 	def get_result(self, index):
 		'''checks on the progress of a job. If complete
