@@ -1,6 +1,8 @@
 from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 from collector import Collector
+import collection, scheduler
+
 from json import dumps
 from rq import job
 import server_config
@@ -37,10 +39,10 @@ class CollectorView(FlaskView):
 			'jobs':jobs
 		}
 		return Response(
-				response = dumps(res),
-				status = 200,
-				mimetype = 'application/json'
-			)
+			response = dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)
 
 	def get_job_result(self):
 		'''takes a uuid and a queue name, returns the result
