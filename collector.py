@@ -3,6 +3,27 @@ from datetime import datetime
 from rq import Queue
 from server_config import REDIS_HOST,REDIS_PORT,REDIS_PW
 from redis import Redis
+from MySQLdb.cursors import DictCursor
+from json import loads
+
+def get_sql_conn(st= 't'):
+	if st == 't':
+		conn = mdb.connect(
+			host=server_config.TRGT_SQL_HOST,
+			port=server_config.TRGT_SQL_PORT,
+			user=server_config.TRGT_SQL_USER,
+			passwd=server_config.TRGT_SQL_PSWD,
+			db=server_config.TRGT_SQL_SCHM
+		)
+	elif st=='s':
+		conn = mdb.connect(
+			host=server_config.SRC_SQL_HOST,
+			port=server_config.SRC_SQL_PORT,
+			user=server_config.SRC_SQL_USER,
+			passwd=server_config.SRC_SQL_PSWD,
+			db=server_config.SRC_SQL_SCHM
+		)		
+	return conn
 
 
 class Collector:
@@ -39,6 +60,29 @@ class Collector:
 		'''provide all the parameters of the collection'''
 		self.parameter_set = parameter_set
 		self.log('loaded %d rows of parameters' % len(self.parameter_set))
+
+	def set_parameters_from_json(self, json):
+		try:
+			self.set_parameters(loads(json))
+		except Exception as e:
+			self.log('Failed to parse json input with exception :%s' % e, 'error')
+
+	def set_parameters_from_sql(self, sql):
+		conn = get_sql_conn('s')
+		c = conn.cursor(cursorclass = DictCursor)
+		c.execute(sql)
+		res = c.fetchall()
+		c.close()
+		conn.close()
+		self.set_parameters(res)	
+
+	def schedule_jobs(self, _input, input_type):
+		if input_type == 'json':
+			self.set_parameters_from_json(_input)
+		elif input_type == 'sql':
+			self.set_parameters_from_sql(_input)
+		else:
+			self.log('Input type %s not recognised' % input_type, 'error')
 
 	def get_result(self, index):
 		'''checks on the progress of a job. If complete

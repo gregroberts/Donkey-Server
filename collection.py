@@ -2,29 +2,10 @@ from rq import Queue, job
 from redis import Redis
 import server_config
 import MySQLdb as mdb
-from collector import Collector
+from collector import Collector, get_sql_conn
 from datetime import datetime
 from MySQLdb.cursors import DictCursor
 
-
-def get_sql_conn(st= 't'):
-	if st == 't':
-		conn = mdb.connect(
-			host=server_config.TRGT_SQL_HOST,
-			port=server_config.TRGT_SQL_PORT,
-			user=server_config.TRGT_SQL_USER,
-			passwd=server_config.TRGT_SQL_PSWD,
-			db=server_config.TRGT_SQL_SCHM
-		)
-	elif st=='s':
-		conn = mdb.connect(
-			host=server_config.SRC_SQL_HOST,
-			port=server_config.SRC_SQL_PORT,
-			user=server_config.SRC_SQL_USER,
-			passwd=server_config.SRC_SQL_PSWD,
-			db=server_config.SRC_SQL_SCHM
-		)		
-	return conn
 
 def mk_table(table_name, columns, db_cursor):
 	col_stmnt = ',\n'.join(map(lambda x: '`%s` TEXT(500)' % x,columns))
@@ -89,8 +70,8 @@ class Collection:
 		self.query_name = query_name
 		self.collector = Collector(query_name, collection_name, queue_name)
 
-	def schedule(self, job_parameters):
-		self.collector.set_parameters(job_parameters)
+	def schedule(self, job_parameters, input_type):
+		self.collector.schedule_jobs(job_parameters, input_type)
 		self.collector.run_jobs()
 		finishings = map(self.add_finisher, self.collector.jobs)
 		return finishings
@@ -101,22 +82,3 @@ class Collection:
 			kwargs = {'job_id':job.id,'table_name':self.table_name},
 			depends_on = job
 		)
-
-	def schedule_from_json(self, json):
-		return self.schedule(json)
-
-	def schedule_from_sql(self, sql):
-		conn = get_sql_conn('s')
-		c = conn.cursor(cursorclass = DictCursor)
-		c.execute(sql)
-		res = c.fetchall()
-		c.close()
-		conn.close()
-		return self.schedule(res)
-
-
-
-
-
-
-
