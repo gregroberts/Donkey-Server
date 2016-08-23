@@ -2,7 +2,7 @@ from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 from collector import Collector
 import collection, scheduler
-
+from redis import Redis
 from json import dumps
 from rq import job
 import server_config
@@ -16,11 +16,11 @@ def get_job_result(job_id):
 		host=server_config.REDIS_HOST,
 		port=server_config.REDIS_PORT,
 	)
-	job = job.Job.fetch(job_id, rc)
+	j = job.Job.fetch(job_id, rc)
 	return {
 		'id':job_id,
-		'status':job.status,
-		'result':job.result
+		'status':j.status,
+		'result':j.result
 	}
 
 
@@ -34,9 +34,11 @@ class CollectorView(FlaskView):
 		collector = Collector(**details)
 		jobs = collector.schedule_jobs(_input, input_type)
 		res = {
+			'data':{
+				'jobs':jobs,
+				'log':collector.log_data,
+			},
 			'message':'collector initiated successfully',
-			'log':collector.log_data,
-			'jobs':jobs
 		}
 		return Response(
 			response = dumps(res),
@@ -49,6 +51,7 @@ class CollectorView(FlaskView):
 			of that job, if finished, else a status'''
 		details = request.json or {}
 		res = get_job_result(details['id'])
+		print res
 		res['message'] = 'fetched job successfully'
 		return Response(
 			response = dumps(res),
@@ -61,7 +64,7 @@ class CollectorView(FlaskView):
 			returns results or statuses'''
 		details = request.json or {}
 		_ids = details['id']
-		results = map(get_jobs_results, _ids)
+		results = {'data':map(get_job_result, _ids)}
 		results['message'] = 'fetched job successfully'
 		return Response(
 			response = dumps(results),
@@ -73,7 +76,7 @@ class CollectorView(FlaskView):
 		'''takes the neccesaries to set up a collection.
 			sets it up in the database
 			returns metadata'''
-		details = request.json() or {}
+		details = request.json or {}
 		scheduler.register_collection(details)
 		res = {'message':'collection registered successfully'}
 		return Response(
@@ -100,7 +103,7 @@ class CollectorView(FlaskView):
 		'''fetches all the collections saved on the server'''
 		things = scheduler.get_schedule()
 		res = {
-			'message':'FOUND %d Collections' % len(things),
+			'message':'found %d Collections' % len(things),
 			'data': things
 		}
 		return Response(
@@ -112,8 +115,9 @@ class CollectorView(FlaskView):
 	def run_collection(self):
 		'''re-runs an instance of a collection,
 			regardless of whether it needed it'''
-		details = request.json() or {}
+		details = request.json or {}
 		thing = scheduler.get_thing(details['id'])
+		print thing
 		scheduler.schedule_thing(thing)
 		res = {
 			'message':'Scheduled collection',

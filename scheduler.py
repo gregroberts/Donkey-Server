@@ -6,6 +6,7 @@ from collector import Collector
 from datetime import datetime
 from MySQLdb.cursors import DictCursor
 from collection import Collection, get_sql_conn
+import json
 
 def get_schedule():
 	conn = get_sql_conn()
@@ -54,7 +55,7 @@ def finit(_id):
 	conn.commit()
 	conn.close()
 
-def schedule_thing(item)
+def schedule_thing(item):
 	birth(item['id'])
 	x =  Collection(
 		item['CollectionName'], 
@@ -62,14 +63,7 @@ def schedule_thing(item)
 		item['QueueName'],
 		item['TableName']	
 	)
-	if item['InputType'] == 'sql':
-		jobs = x.schedule_from_sql(item['Input'])
-	elif item['InputType'] == 'json':
-		inp = json.loads(item['Input'])
-		jobs = x.schedule_from_json(inp)
-	else:
-		'WHAT?'
-		jobs=[-1]
+	jobs = x.schedule(item['Input'], item['InputType'])
 	last = jobs[-1]
 	redis_conn = Redis(
 		host=server_config.REDIS_HOST,
@@ -77,6 +71,15 @@ def schedule_thing(item)
 	)
 	queue = Queue('collections',connection = redis_conn)
 	queue.enqueue(finit, kwargs={'_id':item['id']}, depends_on=last)
+
+def get_thing(_id):
+	conn = get_sql_conn()
+	c = conn.cursor(cursorclass=DictCursor)
+	c.execute('SELECT * from collections WHERE id= %s LIMIT 1' % _id)	
+	res = c.fetchone()
+	c.close()
+	conn.close()
+	return res
 
 def schedule_due_things():
 	things = get_due_items()
@@ -104,13 +107,13 @@ def register_collection(details):
 		INSERT INTO collections
 		(CollectionName, QueryName, TableName, QueueName, Frequency, Input,InputType)
 		VALUES
-			%(CollectionName)s,
+			(%(CollectionName)s,
 			%(QueryName)s, 
 			%(TableName)s, 
 			%(QueueName)s, 
 			%(Frequency)s, 
 			%(Input)s,
-			%(InputType)s
+			%(InputType)s)
 	''', args = details)
 	c.close()
 	conn.commit()

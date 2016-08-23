@@ -1,10 +1,11 @@
 from server_query import ServerQuery
 from datetime import datetime
 from rq import Queue
-from server_config import REDIS_HOST,REDIS_PORT
 from redis import Redis
+import server_config
 from MySQLdb.cursors import DictCursor
 from json import loads
+import MySQLdb as mdb
 
 def get_sql_conn(st= 't'):
 	if st == 't':
@@ -27,13 +28,7 @@ def get_sql_conn(st= 't'):
 
 
 class Collector:
-	collector_name = 'Collector'
-	query_name = ''
-	parameter_set = []
-	result_set = []
-	log_data = []
-	state = True
-	jobs = []
+
 	
 	def log(self, line, l_type = 'message'):
 		'''writes to the log'''
@@ -43,12 +38,17 @@ class Collector:
 			raise Exception(line)
 
 	def __init__(self, query_name, name = None, queue_name = 'default'):
+		self.parameter_set = []
+		self.result_set = []
+		self.log_data = []
+		self.jobs = []
 		self.collector_name = name or self.collector_name
 		self.log('collector instanciated with name %s' % self.collector_name)
 		self.query_name = query_name
 		self.log('loading query with name %s' % self.query_name)
-		self.redis_conn = Redis(host=REDIS_HOST,port=REDIS_PORT)
+		self.redis_conn = Redis(host=server_config.REDIS_HOST,port=server_config.REDIS_PORT)
 		self.queue = Queue(queue_name, connection=self.redis_conn, async=True)
+
 		try:
 			self.Query = ServerQuery(uuid = query_name, from_where='library')
 			self.log('loaded query')
