@@ -72,7 +72,6 @@ class Collection:
 
 	def schedule(self, job_parameters, input_type):
 		self.collector.schedule_jobs(job_parameters, input_type)
-		self.collector.run_jobs()
 		finishings = map(self.add_finisher, self.collector.jobs)
 		return finishings
 
