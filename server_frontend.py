@@ -31,7 +31,7 @@ application.config['APPLICATION_ROOT'] = server_config.web_prefix
 application.register_blueprint(rq_dashboard.blueprint, url_prefix='/redis_queue')
 
 
-@application.route('/donkey/', defaults={'path':''})
+@application.route('/donkey/', defaulst={'path':''})
 @application.route('/<path:path>')
 def index_old(path):
 	return render_template('index.html',

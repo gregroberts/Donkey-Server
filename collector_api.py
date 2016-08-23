@@ -83,7 +83,7 @@ class CollectorView(FlaskView):
 			response = dumps(res),
 			status = 200,
 			mimetype = 'application/json'
-		)			
+		)
 
 
 	def schedule_collections(self):
