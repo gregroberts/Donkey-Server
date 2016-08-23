@@ -1,7 +1,5 @@
 #TODO
 
--move input/input type logic from Collection --> Collector
-
 -All Collections view - shows all collections saved on server
 	-option to re-schedule
 	-option to delete

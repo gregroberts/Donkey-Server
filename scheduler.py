@@ -83,6 +83,38 @@ def schedule_due_things():
 	print things
 	for item in things:
 		schedule_thing(item)
+	return things
+
+def register_collection(details):
+	req_keys = [
+		'CollectionName',
+		'QueryName',
+		'TableName',
+		'QueueName',
+		'Frequency',
+		'Input',
+		'InputType',
+	]
+	if details.keys() != req_keys:
+		missing = filter(lambda x: x not in details.keys(), req_keys)
+		raise Exception('Missing Arguments: %s' % ','.join(missing))
+	conn = get_sql_conn()
+	c = conn.cursor()
+	c.execute('''
+		INSERT INTO collections
+		(CollectionName, QueryName, TableName, QueueName, Frequency, Input,InputType)
+		VALUES
+			%(CollectionName)s,
+			%(QueryName)s, 
+			%(TableName)s, 
+			%(QueueName)s, 
+			%(Frequency)s, 
+			%(Input)s,
+			%(InputType)s
+	''', args = details)
+	c.close()
+	conn.commit()
+	conn.close()
 
 
 

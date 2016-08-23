@@ -52,7 +52,7 @@ class CollectorView(FlaskView):
 		res['message'] = 'fetched job successfully'
 		return Response(
 			response = dumps(res),
-			status = 500,
+			status = 200,
 			mimetype = 'application/json'
 		)
 
@@ -65,7 +65,7 @@ class CollectorView(FlaskView):
 		results['message'] = 'fetched job successfully'
 		return Response(
 			response = dumps(results),
-			status = 500,
+			status = 200,
 			mimetype = 'application/json'
 		)		
 
@@ -73,18 +73,56 @@ class CollectorView(FlaskView):
 		'''takes the neccesaries to set up a collection.
 			sets it up in the database
 			returns metadata'''
-		pass
+		details = request.json() or {}
+		scheduler.register_collection(details)
+		res = {'message':'collection registered successfully'}
+		return Response(
+			response = dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)			
+
 
 	def schedule_collections(self):
 		'''runs the scheduler'''
-		pass
+		things = scheduler.schedule_due_things()
+		res = {
+			'message':'Scheduled %d Collections' % len(things),
+			'data': things
+		}
+		return Response(
+			response = dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)		
 
 	def show_collections(self):
 		'''fetches all the collections saved on the server'''
-		pass
+		things = scheduler.get_schedule()
+		res = {
+			'message':'FOUND %d Collections' % len(things),
+			'data': things
+		}
+		return Response(
+			response = dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)			
 
 	def run_collection(self):
 		'''re-runs an instance of a collection,
 			regardless of whether it needed it'''
-		pass
+		details = request.json() or {}
+		thing = scheduler.get_thing(details['id'])
+		scheduler.schedule_thing(thing)
+		res = {
+			'message':'Scheduled collection',
+		}
+		return Response(
+			response = dumps(res),
+			status = 200,
+			mimetype = 'application/json'
+		)			
+
+
 

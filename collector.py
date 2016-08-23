@@ -76,11 +76,13 @@ class Collector:
 		conn.close()
 		self.set_parameters(res)	
 
-	def schedule_jobs(self, _input, input_type):
+	def schedule_jobs(self, _input, input_type = 'list'):
 		if input_type == 'json':
 			self.set_parameters_from_json(_input)
 		elif input_type == 'sql':
 			self.set_parameters_from_sql(_input)
+		elif input_type == 'list':
+			self.set_parameters(_input)
 		else:
 			self.log('Input type %s not recognised' % input_type, 'error')
 		self.run_jobs()
