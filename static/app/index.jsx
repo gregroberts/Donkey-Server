@@ -5,7 +5,10 @@ import Home from './home.jsx';
 import Query from './query.jsx';
 import List from './list.jsx';
 import RunQuery from './RunQuery.jsx';
-import CollectorList from './CollectorList.jsx'
+import CollectorList from './CollectorList.jsx';
+import CollectorEdit from './CollectorEdit.jsx';
+
+
 ReactDOM.render((
     <Router history={browserHistory}>
       <Route path="/donkey" component={Home} />
@@ -13,6 +16,7 @@ ReactDOM.render((
       	<Route path="/donkey/query/:uuid" component={Query} />
       	<Route path="/donkey/run_query/:uuid" component={RunQuery} />
       	<Route path="/donkey/collectors" component={CollectorList} />
+      	<Route path="/donkey/collectors/:id" component={CollectorEdit} />
     </Router>
   ),
   document.getElementById('core')
