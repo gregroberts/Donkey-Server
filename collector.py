@@ -37,20 +37,20 @@ class Collector:
 		if l_type == 'error':
 			raise Exception(line)
 
-	def __init__(self, query_name, name = None, queue_name = 'default'):
+	def __init__(self, QueryName, CollectionName = None, QueueName = 'default'):
 		self.parameter_set = []
 		self.result_set = []
 		self.log_data = []
 		self.jobs = []
-		self.collector_name = name or self.collector_name
+		self.collector_name = CollectionName
 		self.log('collector instanciated with name %s' % self.collector_name)
-		self.query_name = query_name
+		self.query_name = QueryName
 		self.log('loading query with name %s' % self.query_name)
 		self.redis_conn = Redis(host=server_config.REDIS_HOST,port=server_config.REDIS_PORT)
-		self.queue = Queue(queue_name, connection=self.redis_conn, async=True)
+		self.queue = Queue(QueueName, connection=self.redis_conn, async=True)
 
 		try:
-			self.Query = ServerQuery(uuid = query_name, from_where='library')
+			self.Query = ServerQuery(uuid = QueryName, from_where='library')
 			self.log('loaded query')
 		except Exception as e:
 			self.log('failed to load query, with exception %s' % str(e), 'error')

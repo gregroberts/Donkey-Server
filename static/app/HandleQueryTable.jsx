@@ -123,13 +123,13 @@ class HandleQueryTable extends Component{
 					</tr>
 				} else{
 					return <tr>
-						{
+					{
 						keys.map(function(key, index){
 							if (key!='_base') {
 								return <th key={index}>{key}</th>
 							};
 						})
-						}
+					}
 					</tr>
 				};
 				})()

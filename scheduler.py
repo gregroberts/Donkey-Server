@@ -90,6 +90,8 @@ def schedule_due_things():
 		schedule_thing(item)
 	return things
 
+
+
 def register_collection(details):
 	req_keys = [
 		'CollectionName',
@@ -100,7 +102,7 @@ def register_collection(details):
 		'Input',
 		'InputType',
 	]
-	if details.keys() != req_keys:
+	if set(map(str,details.keys()))!= set(req_keys):
 		missing = filter(lambda x: x not in details.keys(), req_keys)
 		raise Exception('Missing Arguments: %s' % ','.join(missing))
 	conn = get_sql_conn()
@@ -119,8 +121,47 @@ def register_collection(details):
 	''', args = details)
 	c.close()
 	conn.commit()
+	_id = conn.insert_id()
 	conn.close()
+	return _id
 
-
-
+def update_collection(details):
+	req_keys = [
+		'CollectionName',
+		'QueryName',
+		'TableName',
+		'QueueName',
+		'Frequency',
+		'Input',
+		'InputType',
+		'id',
+	]
+	if set(map(str,details.keys())) != set(req_keys):
+		missing = filter(lambda x: x not in details.keys(), req_keys)
+		raise Exception('Missing Arguments: %s' % ','.join(missing))
+	conn = get_sql_conn()
+	c = conn.cursor()
+	c.execute('''
+	UPDATE Collections
+		SET CollectionName = %(CollectionName)s,
+			QueryName = %(QueryName)s,
+			TableName = %(TableName)s,
+			QueueName = %(QueueName)s,
+			Frequency = %(Frequency)s,
+			Input = %(Input)s,
+			InputType = %(InputType)s
+	WHERE id = %(id)s
+	''', args=details)
+	c.close()
+	conn.commit()
+	conn.close()	
 	
+
+def delete_collection(_id):
+	conn = get_sql_conn()
+	c = conn.cursor()
+	c.execute('''DELETE FROM Collections WHERE id = %(id)s''',
+			args={'id':_id})
+	conn.commit()
+	c.close()
+	conn.close()	

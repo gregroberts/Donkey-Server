@@ -59569,6 +59569,11 @@
 											'th',
 											null,
 											'Re-run Now'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Delete Collection'
 										)
 									)
 								),
@@ -59613,6 +59618,7 @@
 			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(CollectorRes).call(this, props));
 	
 			_this2.reschedule = _this2.reschedule.bind(_this2);
+			_this2.delColl = _this2.delColl.bind(_this2);
 			_this2.state = {
 				CollectionName: 'CollectionName',
 				Frequency: 'Frequency',
@@ -59657,6 +59663,15 @@
 				});
 			}
 		}, {
+			key: 'delColl',
+			value: function delColl() {
+				var id = this.state.CollectorID;
+				hit_api('/collector/delete_collection/', { 'id': id }, 'POST').then(function (data) {
+					alert(data.message + ': this window will now reload');
+					location.reload();
+				});
+			}
+		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
 				this.setState({
@@ -59677,6 +59692,7 @@
 			key: 'render',
 			value: function render() {
 				var q_link_loc = '/donkey/query/' + this.state.QueryName;
+				var c_link_loc = '/donkey/collectors/' + this.state.CollectorID;
 				return _react2.default.createElement(
 					'tr',
 					{ className: 'hide-' + !this.props.show },
@@ -59684,9 +59700,13 @@
 						'td',
 						null,
 						_react2.default.createElement(
-							'b',
-							null,
-							this.state.CollectionName
+							'a',
+							{ href: c_link_loc, target: '_blank' },
+							_react2.default.createElement(
+								'b',
+								null,
+								this.state.CollectionName
+							)
 						)
 					),
 					_react2.default.createElement(
@@ -59745,6 +59765,15 @@
 							{ onClick: this.reschedule },
 							'Go!'
 						)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.Button,
+							{ onClick: this.delColl },
+							'Delete!'
+						)
 					)
 				);
 			}
@@ -59786,6 +59815,10 @@
 	
 	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
 	
+	var _OutPutBits = __webpack_require__(/*! ./OutPutBits.jsx */ 496);
+	
+	var _OutPutBits2 = _interopRequireDefault(_OutPutBits);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -59794,7 +59827,8 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	//import {hit_api} from './api_functions.jsx';
+	var OutputTableCell = _OutPutBits2.default.OutputTableCell;
+	var OutputTableRow = _OutPutBits2.default.OutputTableRow;
 	var $ = _jquery2.default;
 	var hit_api = _api_functions2.default.hit_api;
 	var hydrate_query = _api_functions2.default.hydrate_query;
@@ -59809,16 +59843,22 @@
 	
 			_this.componentDidMount = _this.componentDidMount.bind(_this);
 			_this.changeBit = _this.changeBit.bind(_this);
+			_this.updateCollection = _this.updateCollection.bind(_this);
+			_this.testCollector = _this.testCollector.bind(_this);
 			_this.state = {
 				details: {
-					CollectionName: '', //
+					CollectionName: 'Enter a name for your collection...', //
 					Frequency: 0,
-					Input: '',
+					Input: 'What data goes into the collection?',
 					InputType: 'sql', //
-					QueryName: '',
+					QueryName: 'Which query would you like to use as the base of the collection?',
 					QueueName: 'default', //
-					TableName: '' },
-				available_queries: []
+					TableName: 'The (new) sql table your data will be entered into', //
+					'id': props.params.id
+				},
+				available_queries: [],
+				t_jobs: [[]],
+				t_res_cols: []
 			};
 			return _this;
 		}
@@ -59829,6 +59869,18 @@
 				$.when(hit_api('/query/list', null, 'GET')).then(function (data) {
 					this.setState({ available_queries: data.data });
 				}.bind(this));
+				if (this.state.details.id == 'new') {
+					//it's a New query!
+					//we don't have to do anything!
+	
+				} else {
+					hit_api('/collector/show_collection/', { 'id': this.state.details.id }, 'POST').then(function (data) {
+						delete data.data.LastRun;
+						delete data.data.IsRunning;
+						delete data.data.due;
+						this.setState({ details: data.data });
+					}.bind(this));
+				}
 			}
 		}, {
 			key: 'changeBit',
@@ -59836,13 +59888,53 @@
 				var val = e.target.value;
 				var nom = e.target.name;
 				var curr = this.state.details;
+				console.log(val);
 				curr[nom] = val;
 				this.setState({ details: curr });
+			}
+		}, {
+			key: 'updateCollection',
+			value: function updateCollection() {
+				if (this.state.details.id == 'new') {
+					var kk = this.state.details;
+	
+					delete kk['id'];
+					console.log(kk);
+					hit_api('/collector/register_collection', this.state.details, 'POST').then(function (data) {
+						kk['id'] = data.data;
+						this.setState({ details: kk });
+					}.bind(this));
+				} else {
+					hit_api('/collector/update_collection', this.state.details, 'POST').then(function (data) {
+						alert(data.message);
+					});
+				}
+			}
+		}, {
+			key: 'testCollector',
+			value: function testCollector() {
+				var data = {
+					'Input': this.state.details.Input,
+					'InputType': this.state.details.InputType,
+					'QueryName': this.state.details.QueryName,
+					'QueueName': this.state.details.QueueName
+				};
+				hit_api('/collector/run_collector', data, 'POST').then(function (data) {
+					alert(data.message);
+					console.log(data);
+					this.setState({ t_jobs: data.data.jobs }, this.forceUpdate);
+				}.bind(this));
+			}
+		}, {
+			key: 'updateCols',
+			value: function updateCols(cols) {
+				this.setState({ t_res_cols: cols });
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 				var av_q = this.state.available_queries;
+				var t_jobs = this.state.t_jobs;
 				return _react2.default.createElement(
 					_reactBootstrap.Grid,
 					null,
@@ -59860,89 +59952,159 @@
 							)
 						),
 						_react2.default.createElement(
-							_reactBootstrap.ControlLabel,
-							null,
-							'Collection Name'
-						),
-						_react2.default.createElement(_reactBootstrap.FormControl, {
-							type: 'text',
-							name: 'CollectionName',
-							onChange: this.changeBit
-						}),
-						_react2.default.createElement('hr', null),
-						_react2.default.createElement(
-							_reactBootstrap.ControlLabel,
-							null,
-							'Queue Name'
-						),
-						_react2.default.createElement(_reactBootstrap.FormControl, {
-							type: 'text',
-							name: 'QueueName',
-							onChange: this.changeBit
-						}),
-						_react2.default.createElement('hr', null),
-						_react2.default.createElement(
-							_reactBootstrap.ControlLabel,
-							null,
-							'Table Name'
-						),
-						_react2.default.createElement(_reactBootstrap.FormControl, {
-							type: 'text',
-							name: 'TableName',
-							onChange: this.changeBit
-						}),
-						_react2.default.createElement('hr', null),
-						_react2.default.createElement(
-							_reactBootstrap.ControlLabel,
-							null,
-							'Input Type'
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormControl,
-							{
-								componentClass: 'select',
-								name: 'InputType',
-								onChange: this.changeBit
-							},
+							_reactBootstrap.Panel,
+							{ header: 'Collector Setup Details' },
 							_react2.default.createElement(
-								'option',
-								{ value: 'json' },
-								'Json String'
+								_reactBootstrap.ControlLabel,
+								null,
+								'Queue Name'
+							),
+							_react2.default.createElement(_reactBootstrap.FormControl, {
+								type: 'text',
+								name: 'QueueName',
+								onChange: this.changeBit,
+								value: this.state.details.QueueName
+							}),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Input'
+							),
+							_react2.default.createElement(_reactBootstrap.FormControl, {
+								type: 'textarea',
+								name: 'Input',
+								value: this.state.details.Input,
+								onChange: this.changeBit
+							}),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Input Type'
 							),
 							_react2.default.createElement(
-								'option',
-								{ value: 'sql' },
-								'SQL Query'
+								_reactBootstrap.FormControl,
+								{
+									componentClass: 'select',
+									name: 'InputType',
+									value: this.state.details.InputType,
+									onChange: this.changeBit
+								},
+								_react2.default.createElement(
+									'option',
+									{ value: 'json' },
+									'Json String'
+								),
+								_react2.default.createElement(
+									'option',
+									{ value: 'sql' },
+									'SQL Query'
+								)
+							),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Query Name'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.FormControl,
+								{
+									componentClass: 'select',
+									name: 'QueryName',
+									value: this.state.details.QueryName,
+									onChange: this.changeBit
+								},
+								_react2.default.createElement(
+									'option',
+									null,
+									'choose one...'
+								),
+								av_q.map(function (key, index) {
+									return _react2.default.createElement(
+										'option',
+										{
+											value: key.name,
+											key: index
+										},
+										key.name + ' - ' + key.description
+									);
+								})
 							)
 						),
-						_react2.default.createElement('hr', null),
 						_react2.default.createElement(
-							_reactBootstrap.ControlLabel,
-							null,
-							'Query Name'
+							_reactBootstrap.Panel,
+							{ header: 'Collection Testing/Running' },
+							'Here you can test your collection!',
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.Button,
+								{ onClick: this.testCollector },
+								'Test'
+							),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								null,
+								_react2.default.createElement(
+									'tbody',
+									null,
+									t_jobs.map(function (key, index) {
+										return _react2.default.createElement(JobResult, {
+											key: index,
+											uuid: key
+										});
+									})
+								)
+							)
 						),
 						_react2.default.createElement(
-							_reactBootstrap.FormControl,
-							{
-								componentClass: 'select',
-								name: 'QueryName',
-								onChange: this.changeBit
-							},
+							_reactBootstrap.Panel,
+							{ header: 'Collection Save Details' },
 							_react2.default.createElement(
-								'option',
+								_reactBootstrap.ControlLabel,
 								null,
-								'choose one...'
+								'Collection Name'
 							),
-							av_q.map(function (key, index) {
-								return _react2.default.createElement(
-									'option',
-									{
-										value: key.name,
-										key: index
-									},
-									key.name + ' - ' + key.description
-								);
-							})
+							_react2.default.createElement(_reactBootstrap.FormControl, {
+								type: 'text',
+								name: 'CollectionName',
+								onChange: this.changeBit,
+								value: this.state.details.CollectionName
+							}),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Table Name'
+							),
+							_react2.default.createElement(_reactBootstrap.FormControl, {
+								type: 'text',
+								name: 'TableName',
+								onChange: this.changeBit,
+								value: this.state.details.TableName
+							}),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.ControlLabel,
+								null,
+								'Frequency (days)'
+							),
+							_react2.default.createElement(_reactBootstrap.FormControl, {
+								type: 'number',
+								min: 0,
+								max: 90,
+								name: 'Frequency',
+								value: this.state.details.Frequency,
+								onChange: this.changeBit
+							}),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								_reactBootstrap.Button,
+								{ onClick: this.updateCollection },
+								'Save/Update'
+							)
 						)
 					)
 				);
@@ -59950,6 +60112,72 @@
 		}]);
 	
 		return CollectorEdit;
+	}(_react.Component);
+	
+	var JobResult = function (_Component2) {
+		_inherits(JobResult, _Component2);
+	
+		function JobResult(props) {
+			_classCallCheck(this, JobResult);
+	
+			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(JobResult).call(this, props));
+	
+			_this2.state = {
+				uuid: '',
+				data: [],
+				dots: 'loading',
+				fin: false
+			};
+			return _this2;
+		}
+	
+		_createClass(JobResult, [{
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				this.setState({ uuid: this.props.uuid }, function () {
+					function check_fin() {
+						hit_api('/collector/get_job_result', { 'id': this.state.uuid }, 'POST').then(function (data) {
+							if (data.status != 'finished') {
+								var d = this.state.dots;
+								d = d + '.';
+								this.setState({ dots: d });
+								setTimeout(chuck_up, 1000);
+							} else if (data.status == 'finished') {
+								var res = data.result;
+								console.log(res);
+								if (!Array.isArray(res)) {
+									res = [res];
+								};
+								this.setState({ data: res, fin: true }, this.forceUpdate);
+							}
+						}.bind(this));
+					};
+					var chuck_up = check_fin.bind(this);
+					if (this.state.uuid != '') {
+						chuck_up();
+					}
+				}.bind(this));
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				if (this.state.fin) {
+					return this.state.data.map(function (key, index) {
+						return _react2.default.createElement(OutputTableRow, {
+							value: key
+						});
+					});
+				} else {
+					return _react2.default.createElement(
+						'tr',
+						null,
+						this.state.dots
+					);
+				}
+			}
+		}]);
+	
+		return JobResult;
 	}(_react.Component);
 	
 	exports.default = CollectorEdit;

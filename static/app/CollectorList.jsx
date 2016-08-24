@@ -65,6 +65,7 @@ class CollectorList extends Component {
 				<th>Queue Name</th>
 				<th>Table Name</th>
 				<th>Re-run Now</th>
+				<th>Delete Collection</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -98,6 +99,7 @@ class CollectorRes extends  Component {
 	constructor(props) {
 		super(props);
 		this.reschedule = this.reschedule.bind(this);
+		this.delColl = this.delColl.bind(this);
 		this.state = {
 			CollectionName: 'CollectionName',
 			Frequency: 'Frequency',
@@ -135,6 +137,13 @@ class CollectorRes extends  Component {
 			location.reload();
 		})
 	}
+	delColl(){
+		var id = this.state.CollectorID;
+		hit_api('/collector/delete_collection/', {'id':id}, 'POST').then(function(data){
+			alert(data.message+': this window will now reload');
+			location.reload();
+		})		
+	}
 	componentDidMount(){
 		this.setState({
 			CollectionName: this.props.CollectionName,
@@ -150,10 +159,12 @@ class CollectorRes extends  Component {
 			show: this.props.show,
 		}, this.forceUpdate);
 	}
+
 	render() {
 		var q_link_loc = '/donkey/query/'+this.state.QueryName;
+		var c_link_loc = '/donkey/collectors/'+this.state.CollectorID;
 		return <tr className={'hide-'+ ! this.props.show}>
-				<td><b>{this.state.CollectionName}</b></td>
+				<td><a href={c_link_loc} target="_blank"><b>{this.state.CollectionName}</b></a></td>
 				<td>{this.state.Frequency}</td>
 				<td>{String(this.state.Input).substring(0,20)+'...'}</td>
 				<td>{this.state.InputType}</td>
@@ -163,6 +174,7 @@ class CollectorRes extends  Component {
 				<td><a href={"/redis_queue/"+this.state.QueueName} target="_blank">{this.state.QueueName}</a></td>
 				<td>{this.state.TableName}</td>
 				<td><Button onClick={this.reschedule}>Go!</Button></td>
+				<td><Button onClick={this.delColl}>Delete!</Button></td>
 			</tr>
 	}
 };
