@@ -112,6 +112,7 @@ class CollectorView(FlaskView):
 			mimetype = 'application/json'
 		)			
 
+	@route('/run_collection/', methods=['POST'])
 	def run_collection(self):
 		'''re-runs an instance of a collection,
 			regardless of whether it needed it'''

@@ -13,11 +13,13 @@ def get_schedule():
 	c = conn.cursor(cursorclass=DictCursor)
 	c.execute('''
 	SELECT *,
-		 DATE_ADD(LastRun,INTERVAL Frequency DAY) <= curdate()  as due
+		 DATE_ADD(LastRun,INTERVAL Frequency DAY) <= Now()  as due
 	from Collections''')
 	colls = c.fetchall()
 	c.close()
 	conn.close()
+	for ind, item in enumerate(colls):
+		colls[ind]['LastRun'] = str(item['LastRun'])	
 	return colls
 
 def get_due_items():
@@ -36,7 +38,7 @@ def birth(_id):
 	c.execute('''
 		UPDATE Collections
 		SET IsRunning = 1,
-		     LastRun = curdate()
+		     LastRun = Now()
 		WHERE id = %(id)s
 	''', args = {'id':_id})
 	c.close()
@@ -75,7 +77,7 @@ def schedule_thing(item):
 def get_thing(_id):
 	conn = get_sql_conn()
 	c = conn.cursor(cursorclass=DictCursor)
-	c.execute('SELECT * from collections WHERE id= %s LIMIT 1' % _id)	
+	c.execute('SELECT * from Collections WHERE id= %s LIMIT 1' % _id)	
 	res = c.fetchone()
 	c.close()
 	conn.close()
@@ -84,7 +86,7 @@ def get_thing(_id):
 def schedule_due_things():
 	things = get_due_items()
 	print things
-	for item in things:
+	for ind, item in enumerate(things):
 		schedule_thing(item)
 	return things
 
@@ -104,7 +106,7 @@ def register_collection(details):
 	conn = get_sql_conn()
 	c = conn.cursor()
 	c.execute('''
-		INSERT INTO collections
+		INSERT INTO Collections
 		(CollectionName, QueryName, TableName, QueueName, Frequency, Input,InputType)
 		VALUES
 			(%(CollectionName)s,

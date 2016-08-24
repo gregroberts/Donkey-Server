@@ -75,6 +75,10 @@
 	
 	var _RunQuery2 = _interopRequireDefault(_RunQuery);
 	
+	var _CollectorList = __webpack_require__(/*! ./CollectorList.jsx */ 502);
+	
+	var _CollectorList2 = _interopRequireDefault(_CollectorList);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	_reactDom2.default.render(_react2.default.createElement(
@@ -83,7 +87,8 @@
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey', component: _home2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/list/', component: _list2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/query/:uuid', component: _query2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/run_query/:uuid', component: _RunQuery2.default })
+	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/run_query/:uuid', component: _RunQuery2.default }),
+	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/collectors', component: _CollectorList2.default })
 	), document.getElementById('core'));
 
 /***/ },
@@ -59384,6 +59389,368 @@
 	}(_react.Component);
 	
 	exports.default = RunQuery;
+
+/***/ },
+/* 502 */
+/*!*******************************!*\
+  !*** ./app/CollectorList.jsx ***!
+  \*******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _jquery = __webpack_require__(/*! jquery */ 498);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 499);
+	
+	var _api_functions2 = _interopRequireDefault(_api_functions);
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	//import {hit_api} from './api_functions.jsx';
+	var $ = _jquery2.default;
+	var hit_api = _api_functions2.default.hit_api;
+	var hydrate_query = _api_functions2.default.hydrate_query;
+	
+	var CollectorList = function (_Component) {
+		_inherits(CollectorList, _Component);
+	
+		function CollectorList(props) {
+			_classCallCheck(this, CollectorList);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CollectorList).call(this, props));
+	
+			_this.handleSearch = _this.handleSearch.bind(_this);
+			_this.state = {
+				collections: [],
+				show: []
+			};
+			return _this;
+		}
+	
+		_createClass(CollectorList, [{
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				$.when(hit_api('/collector/show_collections/', null, 'GET')).then(function (data) {
+					console.log(data.data);
+					this.setState({ collections: data.data });
+					var h = Array(data.data.length).fill(true);
+					this.setState({ show: h });
+				}.bind(this));
+			}
+		}, {
+			key: 'handleSearch',
+			value: function handleSearch(e) {
+				var toshow = this.state.show.slice();
+				var q = e.target.value;
+				if (q.length < 2) {
+					toshow = Array(this.state.collections.length).fill(true);
+				} else {
+					for (var i = 0; i < this.state.collections.length; i++) {
+						if (this.state.collections[i].CollectionName.toLowerCase().search(q) == -1) {
+							toshow[i] = false;
+						}
+					};
+				};
+				this.setState({ show: toshow });
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var qs = this.state.collections;
+				return _react2.default.createElement(
+					_reactBootstrap.Grid,
+					null,
+					_react2.default.createElement(
+						_reactBootstrap.Row,
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.PageHeader,
+							null,
+							'Saved Collections'
+						),
+						_react2.default.createElement(
+							_reactBootstrap.Panel,
+							null,
+							_react2.default.createElement(
+								_reactBootstrap.FormGroup,
+								null,
+								_react2.default.createElement(
+									_reactBootstrap.InputGroup,
+									null,
+									_react2.default.createElement(
+										_reactBootstrap.InputGroup.Addon,
+										null,
+										'Filter by Name'
+									),
+									_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'url', onChange: this.handleSearch })
+								)
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								{ striped: true, bordered: true, condensed: true, hover: true },
+								_react2.default.createElement(
+									'thead',
+									null,
+									_react2.default.createElement(
+										'tr',
+										null,
+										_react2.default.createElement(
+											'th',
+											null,
+											'Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Frequency'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Input'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Input Type'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Is Running'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Last Run'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Query Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Queue Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Table Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Re-run Now'
+										)
+									)
+								),
+								_react2.default.createElement(
+									'tbody',
+									null,
+									qs.map(function (key, index) {
+										return _react2.default.createElement(CollectorRes, {
+											key: index,
+											CollectionName: key.CollectionName,
+											Frequency: key.Frequency,
+											Input: key.Input,
+											InputType: key.InputType,
+											IsRunning: key.IsRunning,
+											LastRun: key.LastRun,
+											QueryName: key.QueryName,
+											QueueName: key.QueueName,
+											TableName: key.TableName,
+											CollectorID: key.id,
+											show: this.state.show[index]
+										});
+									}.bind(this))
+								)
+							)
+						)
+					)
+				);
+			}
+		}]);
+	
+		return CollectorList;
+	}(_react.Component);
+	
+	;
+	
+	var CollectorRes = function (_Component2) {
+		_inherits(CollectorRes, _Component2);
+	
+		function CollectorRes(props) {
+			_classCallCheck(this, CollectorRes);
+	
+			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(CollectorRes).call(this, props));
+	
+			_this2.reschedule = _this2.reschedule.bind(_this2);
+			_this2.state = {
+				CollectionName: 'CollectionName',
+				Frequency: 'Frequency',
+				Input: 'Input',
+				InputType: 'InputType',
+				IsRunning: 'IsRunning',
+				LastRun: 'LastRun',
+				QueryName: 'QueryName',
+				QueueName: 'QueueName',
+				TableName: 'TableName',
+				CollectorID: -1,
+				show: true
+			};
+			return _this2;
+		}
+	
+		_createClass(CollectorRes, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(pp) {
+				this.setState({
+					CollectionName: pp.CollectionName,
+					Frequency: pp.Frequency,
+					Input: pp.Input,
+					InputType: pp.InputType,
+					IsRunning: pp.IsRunning,
+					LastRun: pp.LastRun,
+					QueryName: pp.QueryName,
+					QueueName: pp.QueueName,
+					CollectorID: pp.CollectorID,
+					TableName: pp.TableName,
+					show: pp.show
+				}, this.forceUpdate);
+				return true;
+			}
+		}, {
+			key: 'reschedule',
+			value: function reschedule() {
+				var id = this.state.CollectorID;
+				hit_api('/collector/run_collection/', { 'id': id }, 'POST').then(function (data) {
+					alert(data.message + ': this window will now reload');
+					location.reload();
+				});
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				this.setState({
+					CollectionName: this.props.CollectionName,
+					CollectorID: this.props.CollectorID,
+					Frequency: this.props.Frequency,
+					Input: this.props.Input,
+					InputType: this.props.InputType,
+					IsRunning: this.props.IsRunning,
+					LastRun: this.props.LastRun,
+					QueryName: this.props.QueryName,
+					QueueName: this.props.QueueName,
+					TableName: this.props.TableName,
+					show: this.props.show
+				}, this.forceUpdate);
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var q_link_loc = '/donkey/query/' + this.state.QueryName;
+				return _react2.default.createElement(
+					'tr',
+					{ className: 'hide-' + !this.props.show },
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							'b',
+							null,
+							this.state.CollectionName
+						)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.Frequency
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						String(this.state.Input).substring(0, 20) + '...'
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.InputType
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.IsRunning
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.LastRun
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							'a',
+							{ href: q_link_loc, target: '_blank' },
+							this.state.QueryName
+						)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							'a',
+							{ href: "/redis_queue/" + this.state.QueueName, target: '_blank' },
+							this.state.QueueName
+						)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.TableName
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.Button,
+							{ onClick: this.reschedule },
+							'Go!'
+						)
+					)
+				);
+			}
+		}]);
+	
+		return CollectorRes;
+	}(_react.Component);
+	
+	;
+	
+	exports.default = CollectorList;
 
 /***/ }
 /******/ ]);
