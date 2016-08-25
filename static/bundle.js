@@ -27866,9 +27866,11 @@
 								null,
 								'Construct A new Query'
 							),
-							'this is where the links will appear to the various ways to construct a new query.',
-							_react2.default.createElement('br', null),
-							_react2.default.createElement('br', null),
+							_react2.default.createElement(
+								'p',
+								null,
+								'this is where the links will appear to the various ways to construct a new query.'
+							),
 							_react2.default.createElement(
 								'a',
 								{ href: '/donkey/query/new', target: '_blank' },
@@ -27880,6 +27882,28 @@
 								'a',
 								{ href: '/donkey/list/', target: '_blank' },
 								'View Saved Queries '
+							),
+							_react2.default.createElement('hr', null),
+							_react2.default.createElement(
+								'h2',
+								null,
+								'Collectors'
+							),
+							_react2.default.createElement(
+								'p',
+								null,
+								'Collectors are a way of performing many of the same query, with different input parameters.'
+							),
+							_react2.default.createElement(
+								'a',
+								{ href: '/donkey/collectors' },
+								'View all Saved Collectors'
+							),
+							_react2.default.createElement('br', null),
+							_react2.default.createElement(
+								'a',
+								{ href: '/donkey/collectors/new' },
+								'Start a new Collector'
 							)
 						)
 					)
@@ -58863,10 +58887,14 @@
 	
 	var $ = _jquery2.default;
 	
-	function hit_api(route, data, method) {
-		console.log(route, data, method);
+	function hit_api(route, data, method, load) {
+		if (load == undefined) {
+			load = true;
+		}
 		function mkLoad() {
-			$('#loader').html('<img src=/static/img/SPINNAZ.gif />');
+			if (load == true) {
+				$('#loader').html('<img src=/static/img/SPINNAZ.gif />');
+			}
 		}
 		function unLoad() {
 			$('#loader').html('');
@@ -60201,7 +60229,7 @@
 				};
 				var do_then_n = do_then.bind(this);
 				function check_fin() {
-					hit_api('/collector/get_job_result', { 'id': this.state.uuid }, 'POST').then(do_then_n);
+					hit_api('/collector/get_job_result', { 'id': this.state.uuid }, 'POST', false).then(do_then_n);
 				};
 				var chuck_up = check_fin.bind(this);
 				this.setState({ uuid: this.props.uuid }, function () {

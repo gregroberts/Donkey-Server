@@ -265,7 +265,7 @@ class JobResult extends Component {
 		};
 		var do_then_n = do_then.bind(this);
 		function check_fin() {
-			hit_api('/collector/get_job_result', {'id':this.state.uuid},'POST').then(do_then_n)
+			hit_api('/collector/get_job_result', {'id':this.state.uuid},'POST', false).then(do_then_n)
 		};
 		var chuck_up = check_fin.bind(this);
 		this.setState({uuid:this.props.uuid}, function(){

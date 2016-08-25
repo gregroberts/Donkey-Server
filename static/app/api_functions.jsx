@@ -3,10 +3,14 @@ var $ = jQuery;
 
 
 
-function hit_api(route, data, method){
-	console.log(route,data,method);
+function hit_api(route, data, method, load){
+	if (load==undefined) {
+		load=true;
+	}
 	function mkLoad(){
-			$('#loader').html('<img src=/static/img/SPINNAZ.gif />');
+			if (load==true) {
+				$('#loader').html('<img src=/static/img/SPINNAZ.gif />');
+			}		
 	}
 	function unLoad(){
 		$('#loader').html('');
