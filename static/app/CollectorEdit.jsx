@@ -18,6 +18,7 @@ class CollectorEdit extends Component {
 		this.changeBit = this.changeBit.bind(this);
 		this.updateCollection = this.updateCollection.bind(this);	
 		this.testCollector	=this.testCollector.bind	(this);
+		this.updateCols = this.updateCols.bind(this);
 		this.state = {
 			details:{
 				CollectionName:'Enter a name for your collection...',//
@@ -74,7 +75,7 @@ class CollectorEdit extends Component {
 		}
 	}
 	testCollector(){
-		this.setState({t_jobs:[]})
+		this.setState({t_jobs:[],t_res_cols:[]})
 		var data = {
 			'Input':this.state.details.Input,
 			'InputType':this.state.details.InputType,
@@ -88,11 +89,15 @@ class CollectorEdit extends Component {
 		}.bind(this))
 	}
 	updateCols(cols){
-		this.setState({t_res_cols:cols});
+		if (this.state.t_res_cols.length==0) {
+			this.setState({t_res_cols:cols});
+		} 
 	}
 	render() {
 		var av_q = this.state.available_queries;
 		var t_jobs = this.state.t_jobs;
+		var t_res_cols = this.state.t_res_cols;
+		var ucc = this.updateCols;
 		return <Grid><Row>
 
 		<PageHeader>Collection Constructor <small>{this.state.CollectionName}</small></PageHeader>
@@ -149,16 +154,27 @@ class CollectorEdit extends Component {
 			</FormControl>
 
 		</Panel>
+
+
+
 		<Panel header="Collection Testing/Running">
 			Here you can test your collection!
 			<hr/>
 			<Button onClick={this.testCollector}>Test</Button>
 			<hr/>
 			<Table>
+				<thead>
+				{
+					t_res_cols.map(function (key,index) {
+						return <th>{key}</th>
+					})
+				}
+				</thead>
 				{
 					t_jobs.map(function (key, index) {
 						return <JobResult
 								key={index}
+								updateCols={ucc}
 								uuid={key}
 							/>
 					})
@@ -224,6 +240,9 @@ class JobResult extends Component {
 				if (!Array.isArray(res)) {
 					res = [res];
 				};
+				if (res.length>0) {
+					this.props.updateCols(Object.keys(res[0]))
+				}
 				this.setState({data:res, fin:true}, this.forceUpdate);
 				this.forceUpdate()
 			}
@@ -246,7 +265,7 @@ class JobResult extends Component {
 				value={key}
 				key={index}
 				/>)
-		});
+		}.bind(this));
 		return <tbody>{rows}</tbody>
 	}
 	mkStuffFalse(){

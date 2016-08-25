@@ -59850,6 +59850,7 @@
 			_this.changeBit = _this.changeBit.bind(_this);
 			_this.updateCollection = _this.updateCollection.bind(_this);
 			_this.testCollector = _this.testCollector.bind(_this);
+			_this.updateCols = _this.updateCols.bind(_this);
 			_this.state = {
 				details: {
 					CollectionName: 'Enter a name for your collection...', //
@@ -59915,7 +59916,7 @@
 		}, {
 			key: 'testCollector',
 			value: function testCollector() {
-				this.setState({ t_jobs: [] });
+				this.setState({ t_jobs: [], t_res_cols: [] });
 				var data = {
 					'Input': this.state.details.Input,
 					'InputType': this.state.details.InputType,
@@ -59931,13 +59932,17 @@
 		}, {
 			key: 'updateCols',
 			value: function updateCols(cols) {
-				this.setState({ t_res_cols: cols });
+				if (this.state.t_res_cols.length == 0) {
+					this.setState({ t_res_cols: cols });
+				}
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 				var av_q = this.state.available_queries;
 				var t_jobs = this.state.t_jobs;
+				var t_res_cols = this.state.t_res_cols;
+				var ucc = this.updateCols;
 				return _react2.default.createElement(
 					_reactBootstrap.Grid,
 					null,
@@ -60050,9 +60055,21 @@
 							_react2.default.createElement(
 								_reactBootstrap.Table,
 								null,
+								_react2.default.createElement(
+									'thead',
+									null,
+									t_res_cols.map(function (key, index) {
+										return _react2.default.createElement(
+											'th',
+											null,
+											key
+										);
+									})
+								),
 								t_jobs.map(function (key, index) {
 									return _react2.default.createElement(JobResult, {
 										key: index,
+										updateCols: ucc,
 										uuid: key
 									});
 								})
@@ -60148,6 +60165,9 @@
 						if (!Array.isArray(res)) {
 							res = [res];
 						};
+						if (res.length > 0) {
+							this.props.updateCols(Object.keys(res[0]));
+						}
 						this.setState({ data: res, fin: true }, this.forceUpdate);
 						this.forceUpdate();
 					}
@@ -60172,7 +60192,7 @@
 						value: key,
 						key: index
 					}));
-				});
+				}.bind(this));
 				return _react2.default.createElement(
 					'tbody',
 					null,
