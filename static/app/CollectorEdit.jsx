@@ -30,7 +30,7 @@ class CollectorEdit extends Component {
 				'id':props.params.id,
 			},
 			available_queries:[],
-			t_jobs:[[]],
+			t_jobs:[],
 			t_res_cols:[]
 		}
 	}
@@ -56,16 +56,13 @@ class CollectorEdit extends Component {
 		var val=e.target.value;
 		var nom=e.target.name;
 		var curr = this.state.details;
-		console.log(val);
 		curr[nom] = val;
 		this.setState({details:curr});
 	}
 	updateCollection(){
 		if (this.state.details.id=='new') {
 			var kk = this.state.details;
-
 			delete kk['id'];
-			console.log(kk);
 			hit_api('/collector/register_collection', this.state.details, 'POST').then(function(data){
 				kk['id'] = data.data;
 				this.setState({details: kk});
@@ -73,7 +70,7 @@ class CollectorEdit extends Component {
 		} else {
 			hit_api('/collector/update_collection', this.state.details, 'POST').then(function(data){
 				alert(data.message);
-			})			
+			})
 		}
 	}
 	testCollector(){
@@ -81,12 +78,12 @@ class CollectorEdit extends Component {
 			'Input':this.state.details.Input,
 			'InputType':this.state.details.InputType,
 			'QueryName':this.state.details.QueryName,
-			'QueueName':this.state.details.QueueName
+			'QueueName':this.state.details.QueueName,
 		};
 		hit_api('/collector/run_collector', data, 'POST').then(function (data) {
 			alert(data.message);
-			console.log(data);
-			this.setState({t_jobs:data.data.jobs}, this.forceUpdate);
+			var jobs = data.data.jobs;
+			this.setState({t_jobs:jobs}, this.forceUpdate);
 		}.bind(this))
 	}
 	updateCols(cols){
@@ -157,7 +154,6 @@ class CollectorEdit extends Component {
 			<Button onClick={this.testCollector}>Test</Button>
 			<hr/>
 			<Table>
-			<tbody>
 				{
 					t_jobs.map(function (key, index) {
 						return <JobResult
@@ -166,7 +162,6 @@ class CollectorEdit extends Component {
 							/>
 					})
 				}
-			</tbody>
 			</Table>
 		</Panel>
 		<Panel header="Collection Save Details">
@@ -205,52 +200,66 @@ class CollectorEdit extends Component {
 class JobResult extends Component {
 	constructor(props) {
 		super(props);
+		this.mkStuffTrue = this.mkStuffTrue.bind(this);
+		this.mkStuffFalse = this.mkStuffFalse.bind(this);
+		this.mkStuff = this.mkStuff.bind(this);
+		this.componentDidMount = this.componentDidMount.bind(this);
 		this.state = {
-			uuid:'',
+			uuid:props.uuid,
 			data:[],
 			dots:'loading',
 			fin:false
 		};
 	}
 	componentDidMount(){
-		this.setState({uuid:this.props.uuid}, function(){
-				function check_fin() {
-					hit_api('/collector/get_job_result', {'id':this.state.uuid},'POST').then(function (data) {
-						if (data.status!='finished') {
-							var d = this.state.dots;
-							d = d + '.';
-							this.setState({dots:d});
-							setTimeout(chuck_up, 1000);
-						} else if (data.status=='finished') {
-							var res = data.result;
-							console.log(res);
-							if (!Array.isArray(res)) {
-								res = [res];
-							};
-							this.setState({data:res, fin:true}, this.forceUpdate);
-						}
-					}.bind(this))
+		function do_then(data){
+			if (data.status!='finished') {
+				var d = this.state.dots;
+				d = d + '.';
+				this.setState({dots:d});
+				setTimeout(chuck_up, 1000);
+			} else if (data.status=='finished') {
+				var res = data.result;
+				if (!Array.isArray(res)) {
+					res = [res];
 				};
-				var chuck_up = check_fin.bind(this);
-				if (this.state.uuid!='') {
-					chuck_up();
-				}
-		}.bind(this));
+				this.setState({data:res, fin:true}, this.forceUpdate);
+				this.forceUpdate()
+			}
+		};
+		var do_then_n = do_then.bind(this);
+		function check_fin() {
+			hit_api('/collector/get_job_result', {'id':this.state.uuid},'POST').then(do_then_n)
+		};
+		var chuck_up = check_fin.bind(this);
+		this.setState({uuid:this.props.uuid}, function(){
+			if (this.state.uuid!='') {
+				chuck_up();
+			}
+		});
+	}
+	mkStuffTrue(){
+		var rows = [];
+		this.state.data.map(function (key,index) {
+			rows.push(<OutputTableRow
+				value={key}
+				key={index}
+				/>)
+		});
+		return <tbody>{rows}</tbody>
+	}
+	mkStuffFalse(){
+		return <tbody><tr>{this.state.dots}</tr></tbody>
+	}
+	mkStuff(){
+		return this.state.fin ? this.mkStuffTrue : this.mkStuffFalse;
 	}
 	render(){
-		if (this.state.fin) {
-			return this.state.data.map(function (key,index) {
-				return <OutputTableRow
-					value={key}
-				/>
-			})
-		} else{
-			return <tr>{this.state.dots}</tr>
-		}
+		var kk=this.mkStuff();
+		var ko = kk()
+		return ko
 	}
-
-
 }
 
 
-export default CollectorEdit;
+export default {CollectorEdit, JobResult};

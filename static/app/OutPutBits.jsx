@@ -10,8 +10,10 @@ class OutputTableRow extends Component {
 		super(props);
 		this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
 		this.state =  {val:[]};
+		console.log('outconts',props);
 	}
 	shouldComponentUpdate(newProps) {
+		console.log('OPB',newProps)
 		this.setState({val:newProps.value}, function(d){
 			this.forceUpdate();
 		}.bind(this));

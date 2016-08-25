@@ -85,6 +85,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	var CollectorEdit = _CollectorEdit2.default.CollectorEdit;
+	var JobResult = _CollectorEdit2.default.JobResult;
+	
 	_reactDom2.default.render(_react2.default.createElement(
 	  _reactRouter.Router,
 	  { history: _reactRouter.browserHistory },
@@ -93,7 +96,7 @@
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/query/:uuid', component: _query2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/run_query/:uuid', component: _RunQuery2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/collectors', component: _CollectorList2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/collectors/:id', component: _CollectorEdit2.default })
+	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/collectors/:id', component: CollectorEdit })
 	), document.getElementById('core'));
 
 /***/ },
@@ -48437,12 +48440,14 @@
 	
 			_this.shouldComponentUpdate = _this.shouldComponentUpdate.bind(_this);
 			_this.state = { val: [] };
+			console.log('outconts', props);
 			return _this;
 		}
 	
 		_createClass(OutputTableRow, [{
 			key: 'shouldComponentUpdate',
 			value: function shouldComponentUpdate(newProps) {
+				console.log('OPB', newProps);
 				this.setState({ val: newProps.value }, function (d) {
 					this.forceUpdate();
 				}.bind(this));
@@ -59857,7 +59862,7 @@
 					'id': props.params.id
 				},
 				available_queries: [],
-				t_jobs: [[]],
+				t_jobs: [],
 				t_res_cols: []
 			};
 			return _this;
@@ -59888,7 +59893,6 @@
 				var val = e.target.value;
 				var nom = e.target.name;
 				var curr = this.state.details;
-				console.log(val);
 				curr[nom] = val;
 				this.setState({ details: curr });
 			}
@@ -59897,9 +59901,7 @@
 			value: function updateCollection() {
 				if (this.state.details.id == 'new') {
 					var kk = this.state.details;
-	
 					delete kk['id'];
-					console.log(kk);
 					hit_api('/collector/register_collection', this.state.details, 'POST').then(function (data) {
 						kk['id'] = data.data;
 						this.setState({ details: kk });
@@ -59921,8 +59923,8 @@
 				};
 				hit_api('/collector/run_collector', data, 'POST').then(function (data) {
 					alert(data.message);
-					console.log(data);
-					this.setState({ t_jobs: data.data.jobs }, this.forceUpdate);
+					var jobs = data.data.jobs;
+					this.setState({ t_jobs: jobs }, this.forceUpdate);
 				}.bind(this));
 			}
 		}, {
@@ -60047,16 +60049,12 @@
 							_react2.default.createElement(
 								_reactBootstrap.Table,
 								null,
-								_react2.default.createElement(
-									'tbody',
-									null,
-									t_jobs.map(function (key, index) {
-										return _react2.default.createElement(JobResult, {
-											key: index,
-											uuid: key
-										});
-									})
-								)
+								t_jobs.map(function (key, index) {
+									return _react2.default.createElement(JobResult, {
+										key: index,
+										uuid: key
+									});
+								})
 							)
 						),
 						_react2.default.createElement(
@@ -60122,8 +60120,12 @@
 	
 			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(JobResult).call(this, props));
 	
+			_this2.mkStuffTrue = _this2.mkStuffTrue.bind(_this2);
+			_this2.mkStuffFalse = _this2.mkStuffFalse.bind(_this2);
+			_this2.mkStuff = _this2.mkStuff.bind(_this2);
+			_this2.componentDidMount = _this2.componentDidMount.bind(_this2);
 			_this2.state = {
-				uuid: '',
+				uuid: props.uuid,
 				data: [],
 				dots: 'loading',
 				fin: false
@@ -60134,53 +60136,79 @@
 		_createClass(JobResult, [{
 			key: 'componentDidMount',
 			value: function componentDidMount() {
+				function do_then(data) {
+					if (data.status != 'finished') {
+						var d = this.state.dots;
+						d = d + '.';
+						this.setState({ dots: d });
+						setTimeout(chuck_up, 1000);
+					} else if (data.status == 'finished') {
+						var res = data.result;
+						if (!Array.isArray(res)) {
+							res = [res];
+						};
+						this.setState({ data: res, fin: true }, this.forceUpdate);
+						this.forceUpdate();
+					}
+				};
+				var do_then_n = do_then.bind(this);
+				function check_fin() {
+					hit_api('/collector/get_job_result', { 'id': this.state.uuid }, 'POST').then(do_then_n);
+				};
+				var chuck_up = check_fin.bind(this);
 				this.setState({ uuid: this.props.uuid }, function () {
-					function check_fin() {
-						hit_api('/collector/get_job_result', { 'id': this.state.uuid }, 'POST').then(function (data) {
-							if (data.status != 'finished') {
-								var d = this.state.dots;
-								d = d + '.';
-								this.setState({ dots: d });
-								setTimeout(chuck_up, 1000);
-							} else if (data.status == 'finished') {
-								var res = data.result;
-								console.log(res);
-								if (!Array.isArray(res)) {
-									res = [res];
-								};
-								this.setState({ data: res, fin: true }, this.forceUpdate);
-							}
-						}.bind(this));
-					};
-					var chuck_up = check_fin.bind(this);
 					if (this.state.uuid != '') {
 						chuck_up();
 					}
-				}.bind(this));
+				});
+			}
+		}, {
+			key: 'mkStuffTrue',
+			value: function mkStuffTrue() {
+				var rows = [];
+				this.state.data.map(function (key, index) {
+					rows.push(_react2.default.createElement(OutputTableRow, {
+						value: key,
+						key: index
+					}));
+				});
+				return _react2.default.createElement(
+					'tbody',
+					null,
+					rows
+				);
+			}
+		}, {
+			key: 'mkStuffFalse',
+			value: function mkStuffFalse() {
+				return _react2.default.createElement(
+					'tbody',
+					null,
+					_react2.default.createElement(
+						'tr',
+						null,
+						this.state.dots
+					)
+				);
+			}
+		}, {
+			key: 'mkStuff',
+			value: function mkStuff() {
+				return this.state.fin ? this.mkStuffTrue : this.mkStuffFalse;
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				if (this.state.fin) {
-					return this.state.data.map(function (key, index) {
-						return _react2.default.createElement(OutputTableRow, {
-							value: key
-						});
-					});
-				} else {
-					return _react2.default.createElement(
-						'tr',
-						null,
-						this.state.dots
-					);
-				}
+				var kk = this.mkStuff();
+				var ko = kk();
+				return ko;
 			}
 		}]);
 	
 		return JobResult;
 	}(_react.Component);
 	
-	exports.default = CollectorEdit;
+	exports.default = { CollectorEdit: CollectorEdit, JobResult: JobResult };
 
 /***/ }
 /******/ ]);

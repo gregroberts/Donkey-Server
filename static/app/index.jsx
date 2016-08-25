@@ -6,7 +6,9 @@ import Query from './query.jsx';
 import List from './list.jsx';
 import RunQuery from './RunQuery.jsx';
 import CollectorList from './CollectorList.jsx';
-import CollectorEdit from './CollectorEdit.jsx';
+import Collbits from './CollectorEdit.jsx';
+var CollectorEdit = Collbits.CollectorEdit;
+var JobResult = Collbits.JobResult;
 
 
 ReactDOM.render((
