@@ -53,7 +53,6 @@ class CollectorView(FlaskView):
 			of that job, if finished, else a status'''
 		details = request.json or {}
 		res = get_job_result(details['id'])
-		print res
 		res['message'] = 'fetched job successfully'
 		return Response(
 			response = dumps(res),

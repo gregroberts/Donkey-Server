@@ -59824,6 +59824,10 @@
 	
 	var _OutPutBits2 = _interopRequireDefault(_OutPutBits);
 	
+	var _export_table = __webpack_require__(/*! ./export_table.jsx */ 504);
+	
+	var _export_table2 = _interopRequireDefault(_export_table);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -59851,15 +59855,16 @@
 			_this.updateCollection = _this.updateCollection.bind(_this);
 			_this.testCollector = _this.testCollector.bind(_this);
 			_this.updateCols = _this.updateCols.bind(_this);
+			_this.exportT = _this.exportT.bind(_this);
 			_this.state = {
 				details: {
-					CollectionName: 'Enter a name for your collection...', //
+					CollectionName: '', //
 					Frequency: 0,
-					Input: 'What data goes into the collection?',
+					Input: '',
 					InputType: 'sql', //
-					QueryName: 'Which query would you like to use as the base of the collection?',
+					QueryName: '',
 					QueueName: 'default', //
-					TableName: 'The (new) sql table your data will be entered into', //
+					TableName: '', //
 					'id': props.params.id
 				},
 				available_queries: [],
@@ -59935,6 +59940,19 @@
 				if (this.state.t_res_cols.length == 0) {
 					this.setState({ t_res_cols: cols });
 				}
+			}
+		}, {
+			key: 'exportT',
+			value: function exportT(e) {
+				var d = new Date();
+				var dd = d.toLocaleFormat('%Y-%m-%d %H.%M.%S');
+				var f_name = 'Table_Export-' + dd;
+				if (this.state.details.CollectionName != '') {
+					f_name = f_name + this.state.details.CollectionName;
+				} else {
+					f_name = f_name + '-' + this.state.details.QueryName + '-' + this.state.details.InputType;
+				}
+				_export_table2.default.apply(e.target, [$('#testTable'), f_name + '.csv']);
 			}
 		}, {
 			key: 'render',
@@ -60053,18 +60071,27 @@
 							),
 							_react2.default.createElement('hr', null),
 							_react2.default.createElement(
+								'a',
+								{ href: '#', onClick: this.exportT },
+								'Export Results'
+							),
+							_react2.default.createElement(
 								_reactBootstrap.Table,
-								null,
+								{ id: 'testTable' },
 								_react2.default.createElement(
 									'thead',
 									null,
-									t_res_cols.map(function (key, index) {
-										return _react2.default.createElement(
-											'th',
-											null,
-											key
-										);
-									})
+									_react2.default.createElement(
+										'tr',
+										null,
+										t_res_cols.map(function (key, index) {
+											return _react2.default.createElement(
+												'th',
+												null,
+												key
+											);
+										})
+									)
 								),
 								t_jobs.map(function (key, index) {
 									return _react2.default.createElement(JobResult, {
@@ -60230,6 +60257,71 @@
 	}(_react.Component);
 	
 	exports.default = { CollectorEdit: CollectorEdit, JobResult: JobResult };
+
+/***/ },
+/* 504 */
+/*!******************************!*\
+  !*** ./app/export_table.jsx ***!
+  \******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _jquery = __webpack_require__(/*! jquery */ 498);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $ = _jquery2.default;
+	
+	function exportTableToCSV($table, filename) {
+	
+	    var $rows = $table.find('tr:has(td),tr:has(th)'),
+	
+	
+	    // Temporary delimiter characters unlikely to be typed by keyboard
+	    // This is to avoid accidentally splitting the actual contents
+	    tmpColDelim = String.fromCharCode(11),
+	        // vertical tab character
+	    tmpRowDelim = String.fromCharCode(0),
+	        // null character
+	
+	    // actual delimiter characters for CSV format
+	    colDelim = '","',
+	        rowDelim = '"\r\n"',
+	
+	
+	    // Grab text from table into CSV formatted string
+	    csv = '"' + $rows.map(function (i, row) {
+	        var $row = $(row),
+	            $cols = $row.find('td,th');
+	
+	        return $cols.map(function (j, col) {
+	            var $col = $(col),
+	                text = $col.text();
+	
+	            return text.replace(/"/g, '""'); // escape double quotes
+	        }).get().join(tmpColDelim);
+	    }).get().join(tmpRowDelim).split(tmpRowDelim).join(rowDelim).split(tmpColDelim).join(colDelim) + '"',
+	
+	
+	    // Data URI
+	    csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+	    if (window.navigator.msSaveBlob) {
+	        // IE 10+
+	        //alert('IE' + csv);
+	        window.navigator.msSaveOrOpenBlob(new Blob([csv], { type: "text/plain;charset=utf-8;" }), "csvname.csv");
+	    } else {
+	        $(this).attr({ 'download': filename, 'href': csvData, 'target': '_blank' });
+	    }
+	}
+	
+	exports.default = exportTableToCSV;
 
 /***/ }
 /******/ ]);

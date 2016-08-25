@@ -4,6 +4,8 @@ import React, {Component} from 'react';
 import {Row, PageHeader, Grid, Panel, FormGroup, FormControl, Table,
 		ControlLabel,Button, InputGroup} from 'react-bootstrap';
 import OutPutBits from './OutPutBits.jsx';
+import exportTableToCSV from './export_table.jsx'
+
 
 var OutputTableCell = OutPutBits.OutputTableCell;
 var OutputTableRow = OutPutBits.OutputTableRow;
@@ -19,15 +21,16 @@ class CollectorEdit extends Component {
 		this.updateCollection = this.updateCollection.bind(this);	
 		this.testCollector	=this.testCollector.bind	(this);
 		this.updateCols = this.updateCols.bind(this);
+		this.exportT = this.exportT.bind(this);
 		this.state = {
 			details:{
-				CollectionName:'Enter a name for your collection...',//
+				CollectionName:'',//
 				Frequency: 0,
-				Input:'What data goes into the collection?',
+				Input:'',
 				InputType:'sql',//
-				QueryName:'Which query would you like to use as the base of the collection?',
+				QueryName:'',
 				QueueName:'default',//
-				TableName:'The (new) sql table your data will be entered into',//
+				TableName:'',//
 				'id':props.params.id,
 			},
 			available_queries:[],
@@ -92,6 +95,17 @@ class CollectorEdit extends Component {
 		if (this.state.t_res_cols.length==0) {
 			this.setState({t_res_cols:cols});
 		} 
+	}
+	exportT(e){
+		var d= new Date();
+		var dd = d.toLocaleFormat('%Y-%m-%d %H.%M.%S');
+		var f_name = 'Table_Export-'+dd;
+		if (this.state.details.CollectionName!='') {
+			f_name = f_name + this.state.details.CollectionName
+		} else {
+			f_name = f_name + '-'+this.state.details.QueryName+'-'+this.state.details.InputType
+		}
+		exportTableToCSV.apply(e.target, [$('#testTable'),f_name+'.csv']);
 	}
 	render() {
 		var av_q = this.state.available_queries;
@@ -162,13 +176,15 @@ class CollectorEdit extends Component {
 			<hr/>
 			<Button onClick={this.testCollector}>Test</Button>
 			<hr/>
-			<Table>
-				<thead>
+			<a href="#" onClick={this.exportT}>Export Results</a>
+			<Table id="testTable">
+				<thead><tr>
 				{
 					t_res_cols.map(function (key,index) {
 						return <th>{key}</th>
 					})
 				}
+				</tr>
 				</thead>
 				{
 					t_jobs.map(function (key, index) {
