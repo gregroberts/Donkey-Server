@@ -74,6 +74,7 @@ class CollectorEdit extends Component {
 		}
 	}
 	testCollector(){
+		this.setState({t_jobs:[]})
 		var data = {
 			'Input':this.state.details.Input,
 			'InputType':this.state.details.InputType,
