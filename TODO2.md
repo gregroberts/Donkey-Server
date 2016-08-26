@@ -8,9 +8,6 @@
 -force fewer updates - refactor this component stuff
 -Add support for arbitrary grabbrs/handlers
 
-####Query List Endpoint
-- Add delete option
-
 -handlers docs section
 
 

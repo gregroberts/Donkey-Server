@@ -44,8 +44,6 @@ class Query extends Component {
 		if (uuid == "new") {
 			this.setState({isNew: true});
 			var get_uid = hit_api('/query/new/', {handler: "XPATHROW"}, 'POST');
-			setTimeout(console.log(get_uid,'aa'), 500);
-
 			var get_details = get_uid.done(function(data){
 				uuid = data.uuid;
 				return hydrate_query(uuid, 'queries');

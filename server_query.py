@@ -70,22 +70,15 @@ class ServerQuery(Query):
 			self.request_query = request_query or self.request_query
 			parameters = self.set_params(**parameters)
 			request_query = self.request_query
-		req_q = {
-			'request':copy(request_query or self.request_query),
-			'handle':copy(handle_query or self.handle_query)
-		}
-		req_q['request'].update({
-			'@freshness':freshness or self.freshness,
-			'@grabber':grabber or self.grabber,
-		})
-		req_q['handle'].update({
-			'@handler':handler or self.handler
-		})
 		val = {
 			'name':name or self.name,
 			'description':description or self.description,
 			'saved_at':datetime.now().strftime('%Y-%m-%d %H:%M'),
-			'query':req_q,
+			'grabber':self.grabber,
+			'handler':self.handler,
+			'freshness':self.freshness,
+			'request_query':self.request_query,
+			'handle_query':self.handle_query,
 			'uuid':uuid or self.uuid,
 			'parameters':self.parameters,
 			'raw_data': self.raw_data,
@@ -99,22 +92,24 @@ class ServerQuery(Query):
 	def load(self, key, where = 'queries'):
 		if where =='queries':
 			self.uuid = key
-		to_get = ['query','name','description','parameters',
-				'raw_data','uuid']
+		to_get = ['name','description','parameters',
+				'raw_data','uuid', 'handle_query',
+				'request_query','freshness','handler',
+				'grabber']
 		value = self.redis_conn.hmget('%s:%s' %(where, key), to_get)
 		if value[0] == None:
 			raise Exception('Could not find query')
-		val = eval(value[0])
-		self.freshness = val['request'].pop('@freshness')
-		self.grabber = val['request'].pop('@grabber')
-		self.handler = val['handle'].pop('@handler')
-		self.request_query = val['request']
-		self.handle_query = val['handle']
-		self.name = value[1]
-		self.description = value[2]
-		self.parameters = eval(value[3])
-		self.raw_data = value[4]
-		self.uuid = value[5]
+		self.name = value[0]
+		self.description = value[1]
+		self.parameters = eval(value[2])
+		self.raw_data = value[3]
+		self.uuid = value[4]
+		self.handle_query = eval(value[5])
+		self.request_query = eval(value[6])
+		self.freshness = int(value[7])
+		self.handler = value[8]
+		self.grabber = value[9] 
+
 
 
 	def set_params(self, **params):
@@ -124,12 +119,14 @@ class ServerQuery(Query):
 
 def list_queries(where = 'library'):
 	redis_conn = get_rc()
-	vals = ['name','description','uuid','query']
+	vals = ['name','description','uuid','grabber','handler','request_query','handle_query',]
 	saves = redis_conn.keys( '%s:*' %where)
 	rr = []
 	for i in saves:
 		val = redis_conn.hmget( i, vals)
+		print val
 		val[-1] = eval(val[-1])
+		val[-2] = eval(val[-2])
 		rr.append(dict(zip(vals, val)))
 	return rr
 
@@ -142,21 +139,6 @@ def delete_query(what, where = 'library'):
 
 
 if __name__ == '__main__':
-#	print 'making new query'
-#	g=ServerQuery()
-#	print 'executing new query'
-#	print g.fetch(url='http://example.com').handle(title='//title//text()').data
-#
-#	uuid = g.uuid
-#	print 'grabbing query %s' % uuid
-#	g = ServerQuery(uuid=uuid)
-#	print 'printing fetched data'
-#	print g.data
-#	print 'updating query'
-#	print g.handle(text='//text()').data
-#
-#	g.save('test','a test')
-#	print g.uuid
 	g = ServerQuery()
 	g.load('e4bd26d1-57fe-11e6-aa35-3417ebcd44f9')
 	print g.run()

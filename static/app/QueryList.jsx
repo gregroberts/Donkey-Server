@@ -57,6 +57,7 @@ class QueryList extends Component {
 			<thead>
 			<tr>
 			<th>Name</th>
+			<th>Edit</th>
 			<th>Description</th>
 			<th>Details</th>
 			<th>Delete</th>
@@ -69,7 +70,10 @@ class QueryList extends Component {
 											name={key.name}
 											description={key.description}
 											uuid={key.uuid}
-											query={key.query}
+											grabber={key.grabber}
+											handler={key.handler}
+											request_query={key.request_query}
+											handle_query={key.handle_query}
 											show={this.state.show[index]}
 									/>;
 					}.bind(this))
@@ -87,37 +91,15 @@ class QueryRes extends  Component {
 		super(props);
 		this.deleteQuery = this.deleteQuery.bind(this);
 		this.state= {
-			name:'',
-			description:'',
-			uuid: '',
-			request_query: {},
-			handle_query:{},
+			name:props.name,
+			description:props.description,
+			uuid:props.uuid,
+			grabber:props.grabber,
+			handler:props.handler,
+			request_query:props.request_query,
+			handle_query:props.handle_query,
 			show:true
 		};
-	}
-	shouldComponentUpdate(pp) {
-		this.setState({name:pp.name, description: pp.description, uuid: pp.uuid},
-				function(){
-					this.setState({
-						name:pp.name,
-						description: pp.description,
-						uuid: pp.uuid,
-						request_query:pp.query.request,
-						handle_query: pp.query.handle,
-						show:pp.show
-					});
-					console.log(pp.show);
-					this.forceUpdate();
-				}
-		);
-		this.render();
-		return true;
-	}
-
-	componentDidMount(){
-
-		this.setState({name:this.props.name, description: this.props.description});
-
 	}
 	deleteQuery() {
 		hit_api('/query/delete',{uuid:this.state.name},'POST').then(function (data) {
@@ -127,16 +109,37 @@ class QueryRes extends  Component {
 		return true;
 	}
 	render() {
-		var link_loc = '/donkey/query/'+this.state.name;
+		var link_loc = '/donkey/run_query/'+this.state.name;
+		var edit_loc = '/donkey/query/'+this.state.name;
+		var reqq = this.state.request_query;
+		var hanq = this.state.handle_query;
 		return <tr className={'hide-'+ ! this.props.show}>
 			<td><a href={link_loc} target="_blank">{this.state.name}</a>
 			</td>
+			<td><a href={edit_loc} target="_blank">Edit</a>
+			</td>			
 			<td>{this.state.description}
 			</td>
 			<td>
-					<b>Request Grabber: </b>{this.state.request_query['@grabber']}<br/>
-					<b>Request URL: </b> {this.state.request_query.url}<br/>
-					<b>Query Handler: </b> {this.state.handle_query['@handler']}<br/>
+					<b>Request Grabber: </b>{this.state.grabber}<br/>
+					<b>Query Handler: </b> {this.state.handler}<br/>
+					<b>Request Details: </b><br/>
+					{
+						Object.keys(reqq).map(function(key, index) {
+							var val = reqq[key];
+							var k=':';
+							return( <span><b>{key}</b>{k}<small>{val}</small></span>)
+						})
+					}
+					<br/>
+					<b>Handle Details</b><br/>
+					{
+						Object.keys(hanq).map(function(key, index) {
+							var val = hanq[key];
+							var k=':';
+							return( <span><b>{key}</b>{k}<small>{val}</small></span>)
+						})
+					}
 			</td>
 			<td><Button onClick={this.deleteQuery}>Delete!</Button></td>
 			</tr>
