@@ -67,9 +67,9 @@
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _list = __webpack_require__(/*! ./list.jsx */ 500);
+	var _QueryList = __webpack_require__(/*! ./QueryList.jsx */ 568);
 	
-	var _list2 = _interopRequireDefault(_list);
+	var _QueryList2 = _interopRequireDefault(_QueryList);
 	
 	var _RunQuery = __webpack_require__(/*! ./RunQuery.jsx */ 501);
 	
@@ -100,7 +100,7 @@
 	  _reactRouter.Router,
 	  { history: _reactRouter.browserHistory },
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey', component: _home2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/list/', component: _list2.default }),
+	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/list/', component: _QueryList2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/query/:uuid', component: _query2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/run_query/:uuid', component: _RunQuery2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/donkey/collectors', component: _CollectorList2.default }),
@@ -58950,276 +58950,7 @@
 	exports.default = { hit_api: hit_api, hydrate_query: hydrate_query };
 
 /***/ },
-/* 500 */
-/*!**********************!*\
-  !*** ./app/list.jsx ***!
-  \**********************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _jquery = __webpack_require__(/*! jquery */ 498);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 499);
-	
-	var _api_functions2 = _interopRequireDefault(_api_functions);
-	
-	var _react = __webpack_require__(/*! react */ 1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	//import {hit_api} from './api_functions.jsx';
-	var $ = _jquery2.default;
-	var hit_api = _api_functions2.default.hit_api;
-	var hydrate_query = _api_functions2.default.hydrate_query;
-	
-	var List = function (_Component) {
-		_inherits(List, _Component);
-	
-		function List(props) {
-			_classCallCheck(this, List);
-	
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(List).call(this, props));
-	
-			_this.handleSearch = _this.handleSearch.bind(_this);
-			_this.state = {
-				queries: [],
-				show: []
-			};
-			return _this;
-		}
-	
-		_createClass(List, [{
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-				$.when(hit_api('/query/list', null, 'GET')).then(function (data) {
-					this.setState({ queries: data.data });
-					var h = Array(data.data.length).fill(true);
-					this.setState({ show: h });
-				}.bind(this));
-			}
-		}, {
-			key: 'handleSearch',
-			value: function handleSearch(e) {
-				var toshow = this.state.show.slice();
-				var q = e.target.value;
-				if (q.length < 2) {
-					toshow = Array(this.state.queries.length).fill(true);
-				} else {
-					for (var i = 0; i < this.state.queries.length; i++) {
-						if (this.state.queries[i].name.toLowerCase().search(q) == -1) {
-							toshow[i] = false;
-						}
-					};
-				};
-				console.log(toshow);
-				this.setState({ show: toshow });
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				var qs = this.state.queries;
-				return _react2.default.createElement(
-					_reactBootstrap.Grid,
-					null,
-					_react2.default.createElement(
-						_reactBootstrap.Row,
-						null,
-						_react2.default.createElement(
-							_reactBootstrap.PageHeader,
-							null,
-							'Saved Queries'
-						),
-						_react2.default.createElement(
-							_reactBootstrap.Panel,
-							null,
-							_react2.default.createElement(
-								_reactBootstrap.FormGroup,
-								null,
-								_react2.default.createElement(
-									_reactBootstrap.InputGroup,
-									null,
-									_react2.default.createElement(
-										_reactBootstrap.InputGroup.Addon,
-										null,
-										'Filter by Name'
-									),
-									_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'url', onChange: this.handleSearch })
-								)
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Table,
-								{ striped: true, bordered: true, condensed: true, hover: true },
-								_react2.default.createElement(
-									'thead',
-									null,
-									_react2.default.createElement(
-										'tr',
-										null,
-										_react2.default.createElement(
-											'th',
-											null,
-											'Name'
-										),
-										_react2.default.createElement(
-											'th',
-											null,
-											'Description'
-										),
-										_react2.default.createElement(
-											'th',
-											null,
-											'Details'
-										)
-									)
-								),
-								_react2.default.createElement(
-									'tbody',
-									null,
-									qs.map(function (key, index) {
-										return _react2.default.createElement(QueryRes, {
-											key: index,
-											name: key.name,
-											description: key.description,
-											uuid: key.uuid,
-											query: key.query,
-											show: this.state.show[index]
-										});
-									}.bind(this))
-								)
-							)
-						)
-					)
-				);
-			}
-		}]);
-	
-		return List;
-	}(_react.Component);
-	
-	;
-	
-	var QueryRes = function (_Component2) {
-		_inherits(QueryRes, _Component2);
-	
-		function QueryRes(props) {
-			_classCallCheck(this, QueryRes);
-	
-			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(QueryRes).call(this, props));
-	
-			_this2.state = {
-				name: '',
-				description: '',
-				uuid: '',
-				request_query: {},
-				handle_query: {},
-				show: true
-			};
-			return _this2;
-		}
-	
-		_createClass(QueryRes, [{
-			key: 'shouldComponentUpdate',
-			value: function shouldComponentUpdate(pp) {
-				this.setState({ name: pp.name, description: pp.description, uuid: pp.uuid }, function () {
-					this.setState({
-						name: pp.name,
-						description: pp.description,
-						uuid: pp.uuid,
-						request_query: pp.query.request,
-						handle_query: pp.query.handle,
-						show: pp.show
-					});
-					console.log(pp.show);
-					this.forceUpdate();
-				});
-				this.render();
-				return true;
-			}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-	
-				this.setState({ name: this.props.name, description: this.props.description });
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				var link_loc = '/donkey/query/' + this.state.name;
-				return _react2.default.createElement(
-					'tr',
-					{ className: 'hide-' + !this.props.show },
-					_react2.default.createElement(
-						'td',
-						null,
-						_react2.default.createElement(
-							'a',
-							{ href: link_loc, target: '_blank' },
-							this.state.name
-						)
-					),
-					_react2.default.createElement(
-						'td',
-						null,
-						this.state.description
-					),
-					_react2.default.createElement(
-						'td',
-						null,
-						_react2.default.createElement(
-							'b',
-							null,
-							'Request Grabber: '
-						),
-						this.state.request_query['@grabber'],
-						_react2.default.createElement('br', null),
-						_react2.default.createElement(
-							'b',
-							null,
-							'Request URL: '
-						),
-						' ',
-						this.state.request_query.url,
-						_react2.default.createElement('br', null),
-						_react2.default.createElement(
-							'b',
-							null,
-							'Query Handler: '
-						),
-						' ',
-						this.state.handle_query['@handler'],
-						_react2.default.createElement('br', null)
-					)
-				);
-			}
-		}]);
-	
-		return QueryRes;
-	}(_react.Component);
-	
-	;
-	
-	exports.default = List;
-
-/***/ },
+/* 500 */,
 /* 501 */
 /*!**************************!*\
   !*** ./app/RunQuery.jsx ***!
@@ -71124,6 +70855,300 @@
 	}(_react.Component);
 	
 	exports.default = GrabberList;
+
+/***/ },
+/* 568 */
+/*!***************************!*\
+  !*** ./app/QueryList.jsx ***!
+  \***************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _jquery = __webpack_require__(/*! jquery */ 498);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _api_functions = __webpack_require__(/*! ./api_functions.jsx */ 499);
+	
+	var _api_functions2 = _interopRequireDefault(_api_functions);
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 239);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	//import {hit_api} from './api_functions.jsx';
+	var $ = _jquery2.default;
+	var hit_api = _api_functions2.default.hit_api;
+	var hydrate_query = _api_functions2.default.hydrate_query;
+	
+	var QueryList = function (_Component) {
+		_inherits(QueryList, _Component);
+	
+		function QueryList(props) {
+			_classCallCheck(this, QueryList);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(QueryList).call(this, props));
+	
+			_this.handleSearch = _this.handleSearch.bind(_this);
+			_this.state = {
+				queries: [],
+				show: []
+			};
+			return _this;
+		}
+	
+		_createClass(QueryList, [{
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				$.when(hit_api('/query/list', null, 'GET')).then(function (data) {
+					this.setState({ queries: data.data });
+					var h = Array(data.data.length).fill(true);
+					this.setState({ show: h });
+				}.bind(this));
+			}
+		}, {
+			key: 'handleSearch',
+			value: function handleSearch(e) {
+				var toshow = this.state.show.slice();
+				var q = e.target.value;
+				if (q.length < 2) {
+					toshow = Array(this.state.queries.length).fill(true);
+				} else {
+					for (var i = 0; i < this.state.queries.length; i++) {
+						if (this.state.queries[i].name.toLowerCase().search(q) == -1) {
+							toshow[i] = false;
+						}
+					};
+				};
+				console.log(toshow);
+				this.setState({ show: toshow });
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var qs = this.state.queries;
+				return _react2.default.createElement(
+					_reactBootstrap.Grid,
+					null,
+					_react2.default.createElement(
+						_reactBootstrap.Row,
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.PageHeader,
+							null,
+							'Saved Queries'
+						),
+						_react2.default.createElement(
+							_reactBootstrap.Panel,
+							null,
+							_react2.default.createElement(
+								_reactBootstrap.FormGroup,
+								null,
+								_react2.default.createElement(
+									_reactBootstrap.InputGroup,
+									null,
+									_react2.default.createElement(
+										_reactBootstrap.InputGroup.Addon,
+										null,
+										'Filter by Name'
+									),
+									_react2.default.createElement(_reactBootstrap.FormControl, { type: 'text', ref: 'url', onChange: this.handleSearch })
+								)
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Table,
+								{ striped: true, bordered: true, condensed: true, hover: true },
+								_react2.default.createElement(
+									'thead',
+									null,
+									_react2.default.createElement(
+										'tr',
+										null,
+										_react2.default.createElement(
+											'th',
+											null,
+											'Name'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Description'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Details'
+										),
+										_react2.default.createElement(
+											'th',
+											null,
+											'Delete'
+										)
+									)
+								),
+								_react2.default.createElement(
+									'tbody',
+									null,
+									qs.map(function (key, index) {
+										return _react2.default.createElement(QueryRes, {
+											key: index,
+											name: key.name,
+											description: key.description,
+											uuid: key.uuid,
+											query: key.query,
+											show: this.state.show[index]
+										});
+									}.bind(this))
+								)
+							)
+						)
+					)
+				);
+			}
+		}]);
+	
+		return QueryList;
+	}(_react.Component);
+	
+	;
+	
+	var QueryRes = function (_Component2) {
+		_inherits(QueryRes, _Component2);
+	
+		function QueryRes(props) {
+			_classCallCheck(this, QueryRes);
+	
+			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(QueryRes).call(this, props));
+	
+			_this2.deleteQuery = _this2.deleteQuery.bind(_this2);
+			_this2.state = {
+				name: '',
+				description: '',
+				uuid: '',
+				request_query: {},
+				handle_query: {},
+				show: true
+			};
+			return _this2;
+		}
+	
+		_createClass(QueryRes, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(pp) {
+				this.setState({ name: pp.name, description: pp.description, uuid: pp.uuid }, function () {
+					this.setState({
+						name: pp.name,
+						description: pp.description,
+						uuid: pp.uuid,
+						request_query: pp.query.request,
+						handle_query: pp.query.handle,
+						show: pp.show
+					});
+					console.log(pp.show);
+					this.forceUpdate();
+				});
+				this.render();
+				return true;
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+	
+				this.setState({ name: this.props.name, description: this.props.description });
+			}
+		}, {
+			key: 'deleteQuery',
+			value: function deleteQuery() {
+				hit_api('/query/delete', { uuid: this.state.name }, 'POST').then(function (data) {
+					alert(data.message + ' This window will now reload');
+					location.reload();
+				});
+				return true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var link_loc = '/donkey/query/' + this.state.name;
+				return _react2.default.createElement(
+					'tr',
+					{ className: 'hide-' + !this.props.show },
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							'a',
+							{ href: link_loc, target: '_blank' },
+							this.state.name
+						)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						this.state.description
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							'b',
+							null,
+							'Request Grabber: '
+						),
+						this.state.request_query['@grabber'],
+						_react2.default.createElement('br', null),
+						_react2.default.createElement(
+							'b',
+							null,
+							'Request URL: '
+						),
+						' ',
+						this.state.request_query.url,
+						_react2.default.createElement('br', null),
+						_react2.default.createElement(
+							'b',
+							null,
+							'Query Handler: '
+						),
+						' ',
+						this.state.handle_query['@handler'],
+						_react2.default.createElement('br', null)
+					),
+					_react2.default.createElement(
+						'td',
+						null,
+						_react2.default.createElement(
+							_reactBootstrap.Button,
+							{ onClick: this.deleteQuery },
+							'Delete!'
+						)
+					)
+				);
+			}
+		}]);
+	
+		return QueryRes;
+	}(_react.Component);
+	
+	;
+	
+	exports.default = QueryList;
 
 /***/ }
 /******/ ]);

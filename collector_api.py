@@ -2,6 +2,7 @@ from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 from collector import Collector
 import collection, scheduler
+from server_cache import get_rc
 from redis import Redis
 from json import dumps
 from rq import job
@@ -12,10 +13,7 @@ import server_config
 def get_job_result(job_id):
 	'''takes a uuid and a queue name, returns the result
 			of that job, if finished, else a status'''
-	rc = Redis(
-		host=server_config.REDIS_HOST,
-		port=server_config.REDIS_PORT,
-	)
+	rc = get_rc()
 	j = job.Job.fetch(job_id, rc)
 	return {
 		'id':job_id,
@@ -146,7 +144,6 @@ class CollectorView(FlaskView):
 			'message' : message,
 			'data': thing
 		}
-		print res
 		return Response(
 			response = dumps(res),
 			status = status,
@@ -160,7 +157,6 @@ class CollectorView(FlaskView):
 			regardless of whether it needed it'''
 		details = request.json or {}
 		thing = scheduler.get_thing(details['id'])
-		print thing
 		scheduler.schedule_thing(thing)
 		res = {
 			'message':'Scheduled collection',

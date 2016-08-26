@@ -1,7 +1,7 @@
 from server_query import ServerQuery
+from server_cache import get_rc
 from datetime import datetime
 from rq import Queue
-from redis import Redis
 import server_config
 from MySQLdb.cursors import DictCursor
 from json import loads
@@ -33,7 +33,6 @@ class Collector:
 	def log(self, line, l_type = 'message'):
 		'''writes to the log'''
 		self.log_data.append([str(datetime.now()), line, l_type])
-		print line
 		if l_type == 'error':
 			raise Exception(line)
 
@@ -46,7 +45,7 @@ class Collector:
 		self.log('collector instanciated with name %s' % self.collector_name)
 		self.query_name = QueryName
 		self.log('loading query with name %s' % self.query_name)
-		self.redis_conn = Redis(host=server_config.REDIS_HOST,port=server_config.REDIS_PORT)
+		self.redis_conn = get_rc()
 		self.queue = Queue(QueueName, connection=self.redis_conn, async=True)
 
 		try:

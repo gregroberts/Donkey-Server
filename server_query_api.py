@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
-from server_query import ServerQuery, list_queries
+from server_query import ServerQuery, list_queries, delete_query
 from json import dumps
 from donkey import grabber
 
@@ -64,6 +64,7 @@ class QueryView(FlaskView):
 				status = 200,
 				mimetype = 'application/json'
 			)
+
 
 	@route('/set_handler/<uuid>', methods=['POST'])
 	def set_handler(self, uuid):
@@ -186,7 +187,15 @@ class QueryView(FlaskView):
 		)
 		#print filter(lambda x: x['name'] != '', res)
 
-
+	@route('/delete', methods=['POST'])
+	def delete(self):
+		query = request.json or {}
+		delete_query(query['uuid'])
+		return Response(
+			dumps({'message':'query deleted successfully'}),
+			status = 200,
+			mimetype = 'application/json'
+		)
 
 
 

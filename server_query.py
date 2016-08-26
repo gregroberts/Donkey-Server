@@ -3,7 +3,7 @@ import server_config
 from uuid import uuid1
 from redis import Redis
 from copy import copy
-from server_cache import cache_insert, cache_check
+from server_cache import cache_insert, cache_check, get_rc
 from datetime import datetime
 import sys
 sys.path.insert(0,'C:\Users\gregr.PACKTPUB\Documents\GitHub\\Donkey')
@@ -19,6 +19,9 @@ donkey.query.grabber.cache_insert = cache_insert
 donkey.query.grabber.cache_check = cache_check
 
 
+
+
+
 class ServerQuery(Query):
 	parameters = []
 	name = ''
@@ -26,11 +29,7 @@ class ServerQuery(Query):
 	def __init__(self, grabber = None, handler =None, freshness = None,
 				uuid = None, name = '', description = '', from_where = 'queries'):
 		#for handling state
-		self.redis_conn = Redis(
-			host = server_config.REDIS_HOST,
-			port = server_config.REDIS_PORT,
-		)
-
+		self.redis_conn = get_rc()
 		#initiate normal query
 		Query.__init__(
 			self,
@@ -124,10 +123,7 @@ class ServerQuery(Query):
 
 
 def list_queries(where = 'library'):
-	redis_conn = Redis(
-			host = server_config.REDIS_HOST,
-			port = server_config.REDIS_PORT,
-	)
+	redis_conn = get_rc()
 	vals = ['name','description','uuid','query']
 	saves = redis_conn.keys( '%s:*' %where)
 	rr = []
@@ -136,6 +132,12 @@ def list_queries(where = 'library'):
 		val[-1] = eval(val[-1])
 		rr.append(dict(zip(vals, val)))
 	return rr
+
+def delete_query(what, where = 'library'):
+	redis_conn = get_rc()
+	redis_conn.delete('%s:%s' % (where,what))
+	return True
+
 
 
 

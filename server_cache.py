@@ -6,11 +6,13 @@ from time import time
 
 #this script controls the cache for the server
 #replaces donkey.cache module
-
-get_rc = lambda : Redis(
-		host = server_config.REDIS_HOST,
-		port = server_config.REDIS_PORT
+def get_rc():
+	redis_conn = Redis(
+			host = server_config.REDIS_HOST,
+			port = server_config.REDIS_PORT,
 	)
+	return redis_conn
+
 
 def cache_insert(s_key, val):
 	c_key = dumps(s_key)

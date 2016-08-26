@@ -11,11 +11,6 @@
 ####Query List Endpoint
 - Add delete option
 
-####Collector Endpoint
--Handle Failed Jobs
--Change load process to prog bar
-
--Grabber docs section
 -handlers docs section
 
 

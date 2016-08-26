@@ -29,7 +29,6 @@ def get_due_items():
 			     x['due'] == 1,
 			     colls
 		)
-	print '%d Collections todo' % len(colls)
 	return todo
 
 def birth(_id):
@@ -85,7 +84,6 @@ def get_thing(_id):
 
 def schedule_due_things():
 	things = get_due_items()
-	print things
 	for ind, item in enumerate(things):
 		schedule_thing(item)
 	return things

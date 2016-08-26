@@ -1,5 +1,5 @@
 from rq import Queue, job
-from redis import Redis
+from server_cache import get_rc
 import server_config
 import MySQLdb as mdb
 from collector import Collector, get_sql_conn
@@ -48,10 +48,7 @@ def insert_res_set(table_name, res):
 	conn.close()
 
 def consume_data(job_id, table_name):
-	rc = Redis(
-			host=server_config.REDIS_HOST,
-			port=server_config.REDIS_PORT,
-		)
+	rc = get_rc()
 	j = job.Job.fetch(job_id, rc)
 	results = j.result
 	#if failed, fail die gracefully, log fail
@@ -61,10 +58,7 @@ def consume_data(job_id, table_name):
 class Collection:
 	def __init__(self, collection_name, query_name, queue_name, table_name):
 		self.collection_name = collection_name
-		self.redis_conn = Redis(
-			host=server_config.REDIS_HOST,
-			port=server_config.REDIS_PORT,
-		)
+		self.redis_conn = get_rc()
 		self.table_name = table_name
 		self.queue = Queue('collections',connection = self.redis_conn)
 		self.query_name = query_name
