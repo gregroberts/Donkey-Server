@@ -2,10 +2,27 @@ from flask import Flask, request, Response, abort, render_template
 from flask.ext.classy import FlaskView, route
 from server_query import ServerQuery, list_queries
 from json import dumps
-
+from donkey import grabber
 
 
 class QueryView(FlaskView):
+
+	def grabber(self, grabber_name):
+		print grabber_name
+		if grabber_name == 'all':
+			return Response(
+				response=dumps(grabber.list_grabbers(full=True)),
+				status=200,
+				mimetype= 'application/json'
+			)
+		else:
+			return Response(
+				response = grabber.get_info(grabber_name),
+				status=200,
+				mimetype='text/markdown'
+			)
+
+
 	@route('/new/', methods=['POST'])
 	def new(self):
 		details = request.json or {}

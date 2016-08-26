@@ -24,6 +24,9 @@ class Home extends Component {
 						<a href="/donkey/collectors">View all Saved Collectors</a>
 						<br/>
 						<a href="/donkey/collectors/new">Start a new Collector</a>
+						<hr/>
+						<h2>Documentation</h2>
+						<p><a href="/donkey/grabbers">Click here</a> to learn more about the different Grabbers available</p>
 					</Col>
 				</Row>
 			</Grid>

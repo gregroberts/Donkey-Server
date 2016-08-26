@@ -26,8 +26,8 @@ class CollectorEdit extends Component {
 			details:{
 				CollectionName:'',//
 				Frequency: 0,
-				Input:'',
-				InputType:'sql',//
+				Input:'[{"url":"example.com"},{"url":"example.com"}]',
+				InputType:'json',//
 				QueryName:'',
 				QueueName:'default',//
 				TableName:'',//
@@ -77,6 +77,7 @@ class CollectorEdit extends Component {
 			})
 		}
 	}
+
 	testCollector(){
 		this.setState({t_jobs:[],t_res_cols:[]})
 		var data = {
@@ -90,6 +91,7 @@ class CollectorEdit extends Component {
 			var jobs = data.data.jobs;
 			this.setState({t_jobs:jobs}, this.forceUpdate);
 		}.bind(this))
+		
 	}
 	updateCols(cols){
 		if (this.state.t_res_cols.length==0) {
@@ -192,6 +194,7 @@ class CollectorEdit extends Component {
 								key={index}
 								updateCols={ucc}
 								uuid={key}
+								ref={key}
 							/>
 					})
 				}
@@ -246,11 +249,14 @@ class JobResult extends Component {
 	}
 	componentDidMount(){
 		function do_then(data){
-			if (data.status!='finished') {
+			if (data.status =='failed') {
+				this.setState({fin:true, data:[['Job Failed']]})
+				this.forceUpdate()
+			} else if (data.status!='finished') {
 				var d = this.state.dots;
 				d = d + '.';
 				this.setState({dots:d});
-				setTimeout(chuck_up, 1000);
+				setTimeout(chuck_up, 2000);
 			} else if (data.status=='finished') {
 				var res = data.result;
 				if (!Array.isArray(res)) {

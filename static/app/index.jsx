@@ -7,6 +7,8 @@ import List from './list.jsx';
 import RunQuery from './RunQuery.jsx';
 import CollectorList from './CollectorList.jsx';
 import Collbits from './CollectorEdit.jsx';
+import GrabberView from './GrabberView.jsx';
+import GrabberList from './GrabberList.jsx';
 var CollectorEdit = Collbits.CollectorEdit;
 var JobResult = Collbits.JobResult;
 
@@ -19,6 +21,8 @@ ReactDOM.render((
       	<Route path="/donkey/run_query/:uuid" component={RunQuery} />
       	<Route path="/donkey/collectors" component={CollectorList} />
       	<Route path="/donkey/collectors/:id" component={CollectorEdit} />
+      <Route path="/donkey/grabbers/:grabber" component={GrabberView} />
+      <Route path="/donkey/grabbers" component={GrabberList} />
     </Router>
   ),
   document.getElementById('core')
