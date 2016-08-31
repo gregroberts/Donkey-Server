@@ -79,6 +79,7 @@ class ServerQuery(Query):
 			'freshness':self.freshness,
 			'request_query':self.request_query,
 			'handle_query':self.handle_query,
+			'crawl_query':self.crawl_query,
 			'uuid':uuid or self.uuid,
 			'parameters':self.parameters,
 			'raw_data': self.raw_data,
@@ -94,7 +95,7 @@ class ServerQuery(Query):
 			self.uuid = key
 		to_get = ['name','description','parameters',
 				'raw_data','uuid', 'handle_query',
-				'request_query','freshness','handler',
+				'request_query','crawl_query','freshness','handler',
 				'grabber']
 		value = self.redis_conn.hmget('%s:%s' %(where, key), to_get)
 		if value[0] == None:
@@ -106,9 +107,10 @@ class ServerQuery(Query):
 		self.uuid = value[4]
 		self.handle_query = eval(value[5])
 		self.request_query = eval(value[6])
-		self.freshness = int(value[7])
-		self.handler = value[8]
-		self.grabber = value[9] 
+		self.crawl_query = eval(value[7])
+		self.freshness = int(value[8])
+		self.handler = value[9]
+		self.grabber = value[10] 
 
 
 
