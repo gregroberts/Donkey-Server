@@ -133,6 +133,7 @@ def collector_job(query_name, job_params):
 			i.update(job_params)
 	elif type(data) is dict:
 		data.update(job_params)
+	return data
 
 
 
