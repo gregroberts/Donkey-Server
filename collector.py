@@ -100,7 +100,7 @@ class Collector:
 					i.update(self.parameter_set[index])
 			elif type(res) is dict:
 				res.update(self.parameter_set[index])
-			return job.result
+			return res
 		else:
 			return False
 
