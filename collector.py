@@ -97,7 +97,7 @@ class Collector:
 			res = job.result
 			if type(res) is list:
 				for i in res:
-					res.update(self.parameter_set[index])
+					i.update(self.parameter_set[index])
 			elif type(res) is dict:
 				res.update(self.parameter_set[index])
 			return job.result

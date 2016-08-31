@@ -23,8 +23,10 @@ def mk_table(table_name, columns, db_cursor):
 		raise(Exception('%s - %s' % (e,statement)))
 
 def insert_res_set(table_name, res):
+	if len(res) == 0:
+		return False
 	conn = get_sql_conn()
-	c = conn.cursor()
+	c = conn.cursor()	
 	if type(res) == list:
 		cols = res[0].keys()
 		col_st = ', '.join(map(lambda x: '%('+x+')s', cols))
