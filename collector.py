@@ -123,9 +123,12 @@ class Collector:
 	def get_results(self):
 		return map(self.get_result, range(len(self.jobs)))
 
+from random import randint
+from time import sleep
 
 
 def collector_job(query_name, job_params):
+	sleep(randint(5,15))
 	Query = ServerQuery(uuid = query_name, from_where='library')
 	data = Query.run(**job_params)
 	if type(data) is list:
