@@ -5,7 +5,7 @@ from server_query_api import QueryView
 from collector_api import CollectorView
 from json import dumps
 import rq_dashboard
-
+from traceback import format_exc
 
 
 application = Flask(__name__)
@@ -19,7 +19,7 @@ CollectorView.register(application)
 def internal_error(e):
 	print e
 	return Response(
-		response =dumps({'error':str(e)}),
+		response =dumps({'error':str(format_exc())}),
 		status = 500,
 		mimetype = 'application/json'
 	)

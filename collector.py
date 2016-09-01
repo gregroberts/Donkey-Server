@@ -128,7 +128,7 @@ from time import sleep
 
 
 def collector_job(query_name, job_params):
-	sleep(randint(5,15))
+	#sleep(randint(5,15))
 	Query = ServerQuery(uuid = query_name, from_where='library')
 	data = Query.run(**job_params)
 	if type(data) is list:
