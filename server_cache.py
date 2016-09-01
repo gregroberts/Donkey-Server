@@ -10,6 +10,7 @@ def get_rc():
 	redis_conn = Redis(
 			host = server_config.REDIS_HOST,
 			port = server_config.REDIS_PORT,
+			password = server_config.REDIS_PW
 	)
 	return redis_conn
 
