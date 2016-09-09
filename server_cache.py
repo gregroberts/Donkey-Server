@@ -36,6 +36,7 @@ def cache_check(key, freshness = 30):
 		return False
 	else:
 		if float(res[0]) > since:
+			print 'hit'
 			return res[1]
 		else:
 			return False

@@ -101,6 +101,7 @@ class Collector:
 	def run_job(self, params):
 		return self.queue.enqueue(
 			collector_job,
+			result_ttl=86000,
 			kwargs={
 				'query_name':self.query_name,
 				'job_params':params
