@@ -5,7 +5,7 @@ from server_query_api import QueryView
 from collector_api import CollectorView
 from json import dumps
 import rq_dashboard
-
+from traceback import format_exc
 
 
 application = Flask(__name__)
@@ -19,13 +19,14 @@ CollectorView.register(application)
 def internal_error(e):
 	print e
 	return Response(
-		response =dumps({'error':str(e)}),
+		response =dumps({'error':str(format_exc())}),
 		status = 500,
 		mimetype = 'application/json'
 	)
 
 application.config['REDIS_HOST'] = server_config.REDIS_HOST
 application.config['REDIS_PORT'] = server_config.REDIS_PORT
+application.config['REDIS_PASSWORD'] = server_config.REDIS_PW
 application.config['RQ_POLL_INTERVAL'] = 2000
 application.config['APPLICATION_ROOT'] = server_config.web_prefix
 application.register_blueprint(rq_dashboard.blueprint, url_prefix='/redis_queue')
