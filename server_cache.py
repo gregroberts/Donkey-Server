@@ -7,12 +7,14 @@ from time import time
 #this script controls the cache for the server
 #replaces donkey.cache module
 def get_rc():
+
 	redis_conn = StrictRedis(
 			host = server_config.REDIS_HOST,
 			port = server_config.REDIS_PORT,
 			password = server_config.REDIS_PW
 	)
-	redis_conn.execute_command('AUTH %s' % server_config.REDIS_PW)
+	if server_config.REDIS_PW != '':
+		redis_conn.execute_command('AUTH %s' % server_config.REDIS_PW)
 	return redis_conn
 
 
