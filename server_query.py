@@ -99,7 +99,7 @@ class ServerQuery(Query):
 				'grabber']
 		value = self.redis_conn.hmget('%s:%s' %(where, key), to_get)
 		if value[0] == None:
-			raise Exception('Could not find query')
+			raise Exception('Could not find query \'%s\', got: %s' % (key, str(value)))
 		self.name = value[0]
 		self.description = value[1]
 		self.parameters = eval(value[2])
