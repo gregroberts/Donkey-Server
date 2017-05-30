@@ -18,5 +18,6 @@
 
 ###Collectors & RQ
 -Add interval
--increase Job TTL (SIGNIFICANTLY)
 -AUTHENTICATE FRIGGIN RQ
+
+- move cache out of redis

@@ -45,4 +45,6 @@ def cache_check(key, freshness = 30):
 			return False
 
 
-
+def clear_cache():
+	rc = get_rc()
+	map(rc.delete, rc.keys('cache:*'))
